@@ -15,15 +15,41 @@ enum AppLanguage: String, CaseIterable, Identifiable, Equatable, Sendable {
         }
     }
 
-    var shortBadge: String {
+    func text(_ it: String, _ en: String) -> String {
+        self == .it ? it : en
+    }
+
+    static var systemResolved: AppLanguage {
+        let preferred = Locale.preferredLanguages.first?.lowercased() ?? "it"
+        return preferred.hasPrefix("it") ? .it : .en
+    }
+}
+
+enum AppLanguagePreference: String, CaseIterable, Identifiable, Equatable, Sendable {
+    case system = "system"
+    case it = "it"
+    case en = "en"
+
+    var id: String { rawValue }
+
+    var resolved: AppLanguage {
         switch self {
-        case .it: "IT"
-        case .en: "EN"
+        case .system: AppLanguage.systemResolved
+        case .it: .it
+        case .en: .en
         }
     }
 
-    func text(_ it: String, _ en: String) -> String {
-        self == .it ? it : en
+    func label(in lang: AppLanguage) -> String {
+        switch self {
+        case .system:
+            let sysName = AppLanguage.systemResolved == .it ? "Italiano" : "English"
+            return lang.text("Automatica (Sistema — \(sysName))", "Automatic (System — \(sysName))")
+        case .it:
+            return "🇮🇹 Italiano"
+        case .en:
+            return "🇬🇧 English"
+        }
     }
 }
 
@@ -44,9 +70,9 @@ enum AppThemeMode: String, CaseIterable, Identifiable, Equatable, Sendable {
 
     func label(in lang: AppLanguage) -> String {
         switch self {
-        case .system: lang.text("Sistema", "System")
-        case .light: lang.text("Chiaro", "Light")
-        case .dark: lang.text("Scuro", "Dark")
+        case .system: lang.text("Automatico (Sistema)", "Automatic (System)")
+        case .light: lang.text("Chiaro (Light)", "Light")
+        case .dark: lang.text("Scuro (Dark)", "Dark")
         }
     }
 
@@ -74,10 +100,14 @@ enum AppThemeMode: String, CaseIterable, Identifiable, Equatable, Sendable {
 @MainActor
 @Observable
 final class AppPreferences {
-    var language: AppLanguage {
+    var languagePreference: AppLanguagePreference {
         didSet {
-            UserDefaults.standard.set(language.rawValue, forKey: "MacDFU.language")
+            UserDefaults.standard.set(languagePreference.rawValue, forKey: "MacDFU.languagePref")
         }
+    }
+
+    var language: AppLanguage {
+        languagePreference.resolved
     }
 
     var theme: AppThemeMode {
@@ -87,12 +117,60 @@ final class AppPreferences {
         }
     }
 
+    var pollingIntervalSeconds: Double {
+        didSet {
+            UserDefaults.standard.set(pollingIntervalSeconds, forKey: "MacDFU.pollingInterval")
+        }
+    }
+
+    var playSoundOnDFUDetection: Bool {
+        didSet {
+            UserDefaults.standard.set(playSoundOnDFUDetection, forKey: "MacDFU.playSoundOnDFU")
+        }
+    }
+
+    var autoSelectHostDFUPort: Bool {
+        didSet {
+            UserDefaults.standard.set(autoSelectHostDFUPort, forKey: "MacDFU.autoSelectHostDFUPort")
+        }
+    }
+
+    var preventHostSleepAlways: Bool {
+        didSet {
+            UserDefaults.standard.set(preventHostSleepAlways, forKey: "MacDFU.preventHostSleep")
+            updateSleepAssertion()
+        }
+    }
+
+    var requireDoubleConfirmForRestore: Bool {
+        didSet {
+            UserDefaults.standard.set(requireDoubleConfirmForRestore, forKey: "MacDFU.doubleConfirmRestore")
+        }
+    }
+
+    var serialBaudRate: Int {
+        didSet {
+            UserDefaults.standard.set(serialBaudRate, forKey: "MacDFU.serialBaudRate")
+        }
+    }
+
+    var defaultIPSWDirectoryPath: String {
+        didSet {
+            UserDefaults.standard.set(defaultIPSWDirectoryPath, forKey: "MacDFU.defaultIPSWDir")
+        }
+    }
+
+    private var sleepActivity: NSObjectProtocol?
+
     init() {
-        if let savedLang = UserDefaults.standard.string(forKey: "MacDFU.language"),
-           let parsed = AppLanguage(rawValue: savedLang) {
-            self.language = parsed
+        if let savedLang = UserDefaults.standard.string(forKey: "MacDFU.languagePref"),
+           let parsed = AppLanguagePreference(rawValue: savedLang) {
+            self.languagePreference = parsed
+        } else if let legacyLang = UserDefaults.standard.string(forKey: "MacDFU.language"),
+                  let parsedLegacy = AppLanguagePreference(rawValue: legacyLang) {
+            self.languagePreference = parsedLegacy
         } else {
-            self.language = .it
+            self.languagePreference = .system
         }
 
         if let savedTheme = UserDefaults.standard.string(forKey: "MacDFU.theme"),
@@ -101,6 +179,63 @@ final class AppPreferences {
         } else {
             self.theme = .system
         }
+
+        let savedPolling = UserDefaults.standard.double(forKey: "MacDFU.pollingInterval")
+        self.pollingIntervalSeconds = savedPolling > 0 ? savedPolling : 2.5
+
+        if UserDefaults.standard.object(forKey: "MacDFU.playSoundOnDFU") != nil {
+            self.playSoundOnDFUDetection = UserDefaults.standard.bool(forKey: "MacDFU.playSoundOnDFU")
+        } else {
+            self.playSoundOnDFUDetection = true
+        }
+
+        if UserDefaults.standard.object(forKey: "MacDFU.autoSelectHostDFUPort") != nil {
+            self.autoSelectHostDFUPort = UserDefaults.standard.bool(forKey: "MacDFU.autoSelectHostDFUPort")
+        } else {
+            self.autoSelectHostDFUPort = true
+        }
+
+        self.preventHostSleepAlways = UserDefaults.standard.bool(forKey: "MacDFU.preventHostSleep")
+
+        if UserDefaults.standard.object(forKey: "MacDFU.doubleConfirmRestore") != nil {
+            self.requireDoubleConfirmForRestore = UserDefaults.standard.bool(forKey: "MacDFU.doubleConfirmRestore")
+        } else {
+            self.requireDoubleConfirmForRestore = true
+        }
+
+        let savedBaud = UserDefaults.standard.integer(forKey: "MacDFU.serialBaudRate")
+        self.serialBaudRate = savedBaud > 0 ? savedBaud : 115200
+
+        let defaultDownloads = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Downloads").path
+        self.defaultIPSWDirectoryPath = UserDefaults.standard.string(forKey: "MacDFU.defaultIPSWDir") ?? defaultDownloads
+
+        updateSleepAssertion()
+    }
+
+    private func updateSleepAssertion() {
+        if preventHostSleepAlways {
+            if sleepActivity == nil {
+                sleepActivity = ProcessInfo.processInfo.beginActivity(
+                    options: [.userInitiated, .idleSystemSleepDisabled],
+                    reason: "Mac DFU Studio active monitoring"
+                )
+            }
+        } else if let activity = sleepActivity {
+            ProcessInfo.processInfo.endActivity(activity)
+            sleepActivity = nil
+        }
+    }
+
+    func resetToDefaults() {
+        languagePreference = .system
+        theme = .system
+        pollingIntervalSeconds = 2.5
+        playSoundOnDFUDetection = true
+        autoSelectHostDFUPort = true
+        preventHostSleepAlways = false
+        requireDoubleConfirmForRestore = true
+        serialBaudRate = 115200
+        defaultIPSWDirectoryPath = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Downloads").path
     }
 
     func tr(_ it: String, _ en: String) -> String {

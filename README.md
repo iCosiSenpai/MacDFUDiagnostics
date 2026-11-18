@@ -46,11 +46,12 @@
      - **Mac Apple Silicon**: verifica lo spazio libero sull'Host (~55 GB per decomprimere l'immagine) e utilizza un file `UniversalMac_..._Restore.ipsw` locale o scaricato dai server Apple.
      - **Mac Intel T2 (`iBridge2,1`–`iBridge2,22`)**: in DFU il target è il coprocessore **Apple T2 (`CPID 0x8012`)**, non la CPU Intel. L'app esegue il Revive/Restore di **`bridgeOS`** (~500 MB scaricati automaticamente da `cfgutil` senza bisogno di un IPSW UniversalMac) e guida l'utente al successivo avvio in **Internet Recovery (`Option-Command-R`)** nel caso di Restore completo.
 
-4. **🎨 Interfaccia Moderna Bilingue (🇮🇹 IT / 🇬🇧 EN) con Tema Chiaro/Scuro, Layout Responsivo & Mappa Porta DFU dell'Host**
-   - Switch istantaneo tra **Italiano** e **Inglese** e tra tema **Sistema / Chiaro / Scuro** direttamente dalla barra degli strumenti.
+4. **🎨 Interfaccia Moderna Bilingue (Automatica / 🇮🇹 IT / 🇬🇧 EN), Impostazioni (`⌘,`) & Aggiornamento Obbligatorio Automatico**
+   - **Sezione Impostazioni Dedicata (`⌘,`)**: accessibile dalla sidebar, dal pulsante ingranaggio nella toolbar o con la scorciatoia nativa macOS **`Cmd + ,`**.
+   - **Selezione Lingua (`Automatica di Sistema`, `🇮🇹 Italiano`, `🇬🇧 English`) e Tema (`Automatico`, `Chiaro`, `Scuro`)**.
+   - **🔄 Sistema di Aggiornamento Obbligatorio via GitHub Releases (`UpdateManager`)**: all'avvio (o premendo *"Verifica Aggiornamenti Ora"* nelle Impostazioni) interroga l'API di GitHub Releases. Se è presente una versione più recente, mostra una finestra modale obbligatoria non chiudibile con le note di rilascio e il pulsante **"Aggiorna e Riavvia App"**, che scarica il pacchetto notarizzato da Apple, verifica la firma digitale Developer ID (`codesign --verify --deep --strict`), sostituisce l'app e la riavvia automaticamente.
    - **Rilevamento Automatico della Porta DFU del Mac Host**: legge la scheda logica del Mac Host (`IOPlatformExpertDevice`, es. `J813AP` $\rightarrow$ *MacBook Air 13" M5*) e disegna direttamente in dashboard la **mappa visiva della porta DFU del Mac Host**, accompagnata dai pulsanti rapidi per aprire le pagine ufficiali Apple Support **[HT120694](https://support.apple.com/it-it/120694)** e **[HT108900](https://support.apple.com/it-it/108900)**.
-   - **Layout Responsivo (`ViewThatFits`)**: si adatta automaticamente a qualsiasi dimensione della finestra senza mai troncare i pulsanti con `...`.
-   - **Diagramma Visivo Interattivo delle Porte USB-C** per ogni singolo modello di Mac target, con evidenziazione grafica della porta DFU e badge di avviso per le eccezioni ufficiali Apple `HT120694`.
+   - **Opzioni Avanzate per Tecnici**: feedback sonoro all'ingresso in DFU, selezione automatica del controller `AppleHPM (RID)` dell'Host, blocco standby del Mac Host, doppia conferma di sicurezza per il Restore, scansione automatica dei file `.ipsw` nella cartella predefinita e apertura con 1 clic della console seriale UART in `Terminal.app` (`screen /dev/cu.debug-console 115200`).
 
 ---
 

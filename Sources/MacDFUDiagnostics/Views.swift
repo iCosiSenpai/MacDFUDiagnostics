@@ -2,11 +2,16 @@ import SwiftUI
 import AppKit
 import UniformTypeIdentifiers
 
+extension Notification.Name {
+    static let openAppSettingsSection = Notification.Name("MacDFU.openAppSettingsSection")
+}
+
 enum NavigationSection: String, CaseIterable, Identifiable, Equatable {
     case dfuDashboard
     case diagnostics
     case compatibility
     case portGuide
+    case settings
 
     var id: String { rawValue }
 
@@ -20,6 +25,8 @@ enum NavigationSection: String, CaseIterable, Identifiable, Equatable {
             lang.text("Mac Compatibili (M1–M6 & Intel)", "Compatible Macs (M1–M6 & Intel)")
         case .portGuide:
             lang.text("Guida Porte DFU & Cavi", "DFU Port & Cable Guide")
+        case .settings:
+            lang.text("Impostazioni", "Settings")
         }
     }
 
@@ -33,6 +40,8 @@ enum NavigationSection: String, CaseIterable, Identifiable, Equatable {
             lang.text("Apple Silicon, Intel T2 e Pre-T2 con mappa porte", "Apple Silicon, Intel T2 & Pre-T2 port map")
         case .portGuide:
             lang.text("Regole ufficiali Apple HT120694 & HT108900", "Official Apple HT120694 & HT108900 rules")
+        case .settings:
+            lang.text("Lingua, Tema, Aggiornamenti e Opzioni (⌘,)", "Language, Theme, Updates & Options (⌘,)")
         }
     }
 
@@ -42,6 +51,7 @@ enum NavigationSection: String, CaseIterable, Identifiable, Equatable {
         case .diagnostics: "stethoscope"
         case .compatibility: "laptopcomputer.and.ipad"
         case .portGuide: "cable.connector.horizontal"
+        case .settings: "gearshape.fill"
         }
     }
 }
@@ -49,12 +59,13 @@ enum NavigationSection: String, CaseIterable, Identifiable, Equatable {
 struct MainRootView: View {
     @Bindable var engine: DiagnosticsEngine
     @Bindable var prefs: AppPreferences
+    @Bindable var updater: UpdateManager
     @State private var selectedSection: NavigationSection = .dfuDashboard
 
     var body: some View {
         NavigationSplitView {
             VStack(alignment: .leading, spacing: 0) {
-                SidebarBrandHeaderView(prefs: prefs)
+                SidebarBrandHeaderView(prefs: prefs, version: updater.currentVersion)
                 Divider()
                 List(NavigationSection.allCases, selection: $selectedSection) { section in
                     SidebarRowView(section: section, lang: prefs.language)
@@ -80,10 +91,24 @@ struct MainRootView: View {
                     CompatibilityExplorerView(prefs: prefs)
                 case .portGuide:
                     PortAndCableGuideView(engine: engine, prefs: prefs)
+                case .settings:
+                    AppSettingsView(engine: engine, prefs: prefs, updater: updater)
                 }
             }
         }
         .preferredColorScheme(prefs.theme.colorScheme)
+        .onReceive(NotificationCenter.default.publisher(for: .openAppSettingsSection)) { _ in
+            selectedSection = .settings
+        }
+        .sheet(
+            isPresented: Binding(
+                get: { updater.isMandatoryUpdateModalPresented },
+                set: { _ in }
+            )
+        ) {
+            MandatoryUpdateModalView(updater: updater, lang: prefs.language)
+                .interactiveDismissDisabled(true)
+        }
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 if engine.isBusy {
@@ -97,26 +122,12 @@ struct MainRootView: View {
                     }
                 }
 
-                // Compact Language Switcher (IT / EN) — never overflows toolbar
-                Picker(prefs.tr("Lingua", "Language"), selection: $prefs.language) {
-                    Text("🇮🇹 IT").tag(AppLanguage.it)
-                    Text("🇬🇧 EN").tag(AppLanguage.en)
+                Button {
+                    engine.copyDiagnosticReportToClipboard(in: prefs.language)
+                } label: {
+                    Label(prefs.tr("Copia Report", "Copy Report"), systemImage: "doc.on.clipboard")
                 }
-                .pickerStyle(.segmented)
-                .frame(width: 112)
-                .help(prefs.tr("Cambia lingua (Italiano / Inglese)", "Switch language (Italian / English)"))
-
-                // Compact Theme Switcher
-                Picker(prefs.tr("Tema", "Theme"), selection: $prefs.theme) {
-                    ForEach(AppThemeMode.allCases) { mode in
-                        Image(systemName: mode.iconName)
-                            .help(mode.label(in: prefs.language))
-                            .tag(mode)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .frame(width: 98)
-                .help(prefs.tr("Tema: Sistema / Chiaro / Scuro", "Theme: System / Light / Dark"))
+                .help(prefs.tr("Copia il report diagnostico completo negli appunti", "Copy full diagnostic report to clipboard"))
 
                 Button {
                     engine.refreshAllHardware()
@@ -124,6 +135,13 @@ struct MainRootView: View {
                     Label(prefs.tr("Aggiorna", "Refresh"), systemImage: "arrow.clockwise")
                 }
                 .help(prefs.tr("Aggiorna scansione USB, porte AppleHPM e dischi Target Disk Mode", "Refresh USB, AppleHPM ports, and Target Disk Mode scan"))
+
+                Button {
+                    selectedSection = .settings
+                } label: {
+                    Label(prefs.tr("Impostazioni", "Settings"), systemImage: "gearshape.fill")
+                }
+                .help(prefs.tr("Apri Impostazioni (⌘,)", "Open Settings (⌘,)"))
             }
         }
     }
@@ -131,6 +149,7 @@ struct MainRootView: View {
 
 private struct SidebarBrandHeaderView: View {
     let prefs: AppPreferences
+    let version: String
 
     var body: some View {
         HStack(spacing: 10) {
@@ -153,8 +172,17 @@ private struct SidebarBrandHeaderView: View {
                     .foregroundStyle(.cyan)
             }
             VStack(alignment: .leading, spacing: 1) {
-                Text("Mac DFU Studio")
-                    .font(.headline)
+                HStack(spacing: 6) {
+                    Text("Mac DFU Studio")
+                        .font(.headline)
+                    Text("v\(version)")
+                        .font(.caption2.monospaced().bold())
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 1)
+                        .background(Color.cyan.opacity(0.18))
+                        .foregroundStyle(.cyan)
+                        .clipShape(Capsule())
+                }
                 Text(prefs.tr("Silicon M1–M6 & Intel T2", "Silicon M1–M6 & Intel T2"))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
@@ -235,6 +263,166 @@ private struct HostStatusFooterView: View {
     }
 }
 
+// MARK: - Mandatory Update Blocking Sheet ("Aggiorna e Riavvia App")
+struct MandatoryUpdateModalView: View {
+    let updater: UpdateManager
+    let lang: AppLanguage
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            HStack(spacing: 14) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [Color(red: 0.08, green: 0.16, blue: 0.34), Color(red: 0.03, green: 0.28, blue: 0.28)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 56, height: 56)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .strokeBorder(Color.cyan.opacity(0.7), lineWidth: 1.5)
+                        )
+                    Image(systemName: "arrow.down.circle.dotted")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundStyle(.cyan)
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 8) {
+                        Text(lang.text("Aggiornamento Obbligatorio Disponibile", "Mandatory Update Available"))
+                            .font(.title3.bold())
+                        Text(lang.text("OBBLIGATORIO", "REQUIRED"))
+                            .font(.caption2.bold())
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 2)
+                            .background(Color.orange.opacity(0.22))
+                            .foregroundStyle(.orange)
+                            .clipShape(Capsule())
+                    }
+                    if let rel = updater.activeRequiredRelease {
+                        Text(lang.text(
+                            "Versione installata: v\(updater.currentVersion)  →  Nuova versione: v\(rel.cleanVersion)",
+                            "Installed version: v\(updater.currentVersion)  →  New version: v\(rel.cleanVersion)"
+                        ))
+                        .font(.subheadline.monospaced())
+                        .foregroundStyle(.secondary)
+                    }
+                }
+                Spacer()
+            }
+
+            if let rel = updater.activeRequiredRelease {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(lang.text("Note di Rilascio (\(rel.name)):", "Release Notes (\(rel.name)):"))
+                        .font(.caption.bold())
+                        .foregroundStyle(.secondary)
+                    ScrollView {
+                        Text(rel.body.isEmpty ? lang.text("Aggiornamento di sicurezza e compatibilità hardware.", "Security and hardware compatibility update.") : rel.body)
+                            .font(.callout)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .textSelection(.enabled)
+                    }
+                    .frame(height: 150)
+                    .padding(10)
+                    .background(Color.secondary.opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+            }
+
+            // Progress or Error feedback
+            switch updater.state {
+            case .downloading(_, let progress, let downloaded, let total):
+                VStack(alignment: .leading, spacing: 6) {
+                    ProgressView(value: progress) {
+                        Text(lang.text("Download aggiornamento firmato e notarizzato...", "Downloading signed & notarized update..."))
+                            .font(.subheadline.bold())
+                    } currentValueLabel: {
+                        let dlStr = ByteCountFormatter.string(fromByteCount: downloaded, countStyle: .file)
+                        let totStr = ByteCountFormatter.string(fromByteCount: total, countStyle: .file)
+                        Text("\(dlStr) / \(totStr) (\(Int(progress * 100))%)")
+                            .font(.caption.monospaced())
+                    }
+                }
+                .padding(12)
+                .background(Color.accentColor.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+
+            case .installing(_, let stageIT, let stageEN):
+                HStack(spacing: 10) {
+                    ProgressView()
+                        .controlSize(.small)
+                    Text(lang == .it ? stageIT : stageEN)
+                        .font(.subheadline.bold())
+                }
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.green.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+
+            case .failed(let msgIT, let msgEN, _):
+                Label(lang == .it ? msgIT : msgEN, systemImage: "exclamationmark.triangle.fill")
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .padding(10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.red.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            default:
+                Text(lang.text(
+                    "Per garantire la massima sicurezza durante il flash DFU e la compatibilità con i nuovi modelli Mac, questo aggiornamento è obbligatorio. L'app scaricherà il pacchetto notarizzato da Apple, verificherà la firma Developer ID e si riavvierà automaticamente.",
+                    "To ensure maximum safety during DFU flashing and full compatibility with newer Mac models, this update is mandatory. The app will download the Apple-notarized package, verify its Developer ID signature, and restart automatically."
+                ))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            }
+
+            Divider()
+
+            HStack {
+                if let rel = updater.activeRequiredRelease {
+                    Link(destination: rel.htmlURL) {
+                        Label(lang.text("Vedi su GitHub", "View on GitHub"), systemImage: "arrow.up.right.square")
+                    }
+                    .buttonStyle(.bordered)
+                }
+
+                Spacer()
+
+                Button {
+                    Task {
+                        await updater.downloadAndInstallMandatoryUpdate()
+                    }
+                } label: {
+                    Label(
+                        lang.text("Aggiorna e Riavvia App", "Update and Restart App"),
+                        systemImage: "arrow.triangle.2.circlepath.circle.fill"
+                    )
+                    .font(.headline)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.green)
+                .controlSize(.large)
+                .disabled(isBusyUpdating)
+            }
+        }
+        .padding(24)
+        .frame(width: 560)
+    }
+
+    private var isBusyUpdating: Bool {
+        switch updater.state {
+        case .downloading, .installing: true
+        default: false
+        }
+    }
+}
+
 // MARK: - 1. Streamlined 1-Click DFU Dashboard View
 struct DFUDashboardView: View {
     @Bindable var engine: DiagnosticsEngine
@@ -244,6 +432,7 @@ struct DFUDashboardView: View {
 
     @State private var showIPSWPicker = false
     @State private var confirmRestoreDevice: DetectedAppleUSBDevice?
+    @State private var secondConfirmRestoreDevice: DetectedAppleUSBDevice?
     @State private var showAdvancedVDM = false
 
     private var lang: AppLanguage { prefs.language }
@@ -251,7 +440,6 @@ struct DFUDashboardView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                // 1. Responsive Hero Connection Banner & Non-Truncating Action Bar
                 ConnectionHeroBannerView(
                     engine: engine,
                     lang: lang,
@@ -259,10 +447,8 @@ struct DFUDashboardView: View {
                     onOpenCompatibility: onOpenCompatibility
                 )
 
-                // 2. Host Mac DFU Port Card + Official Apple Support Link Button!
                 HostMacDFUPortCard(engine: engine, lang: lang)
 
-                // 3. Active Target Device Card (or Step-by-Step Quick Guide)
                 DetectedTargetsActionCard(
                     engine: engine,
                     lang: lang,
@@ -270,14 +456,12 @@ struct DFUDashboardView: View {
                     confirmRestoreDevice: $confirmRestoreDevice
                 )
 
-                // 4. Expandable Advanced VDM & Port Topology Drawer
                 AdvancedVDMControlsCard(
                     engine: engine,
                     lang: lang,
                     isExpanded: $showAdvancedVDM
                 )
 
-                // 5. Activity Log Console
                 LiveConsoleCard(engine: engine, lang: lang)
             }
             .padding(20)
@@ -306,10 +490,14 @@ struct DFUDashboardView: View {
             ),
             presenting: confirmRestoreDevice
         ) { device in
-            Button(prefs.tr("Cancella Tutto ed Esegui Restore", "Erase Everything and Restore"), role: .destructive) {
+            Button(prefs.tr("Procedi con il Restore", "Proceed with Restore"), role: .destructive) {
                 confirmRestoreDevice = nil
-                Task {
-                    await engine.executeCfgutilAction(mode: "restore", device: device)
+                if prefs.requireDoubleConfirmForRestore {
+                    secondConfirmRestoreDevice = device
+                } else {
+                    Task {
+                        await engine.executeCfgutilAction(mode: "restore", device: device)
+                    }
                 }
             }
             Button(prefs.tr("Annulla", "Cancel"), role: .cancel) {
@@ -318,8 +506,8 @@ struct DFUDashboardView: View {
         } message: { device in
             if device.isIntelT2 {
                 Text(prefs.tr(
-                    "Il chip Apple T2 (\(device.resolvedSpec?.dfuTargetIdentifier ?? "iBridge2,x")) su \(device.displayTitle(in: lang)) verrà inizializzato e tutte le chiavi crittografiche dell'SSD interno saranno distrutte. Dopo il ripristino di bridgeOS dovrai installare macOS da Internet Recovery (Option-Command-R).",
-                    "The Apple T2 chip (\(device.resolvedSpec?.dfuTargetIdentifier ?? "iBridge2,x")) on \(device.displayTitle(in: lang)) will be erased and all internal SSD encryption keys will be destroyed. After bridgeOS restores, install macOS via Internet Recovery (Option-Command-R)."
+                    "Il chip Apple T2 (\(device.resolvedSpec?.dfuTargetIdentifier ?? "iBridge2,x")) su \(device.displayTitle(in: lang)) verrà inizializzato e tutte le chiavi crittografiche dell'SSD interno saranno distrutte.",
+                    "The Apple T2 chip (\(device.resolvedSpec?.dfuTargetIdentifier ?? "iBridge2,x")) on \(device.displayTitle(in: lang)) will be erased and all internal SSD encryption keys will be destroyed."
                 ))
             } else {
                 Text(prefs.tr(
@@ -327,6 +515,29 @@ struct DFUDashboardView: View {
                     "All data on \(device.displayTitle(in: lang)) (ECID: \(device.ecidHex ?? "N/A")) will be permanently deleted."
                 ))
             }
+        }
+        .alert(
+            prefs.tr("ULTIMA CONFERMA DI SICUREZZA", "FINAL SAFETY CONFIRMATION"),
+            isPresented: Binding(
+                get: { secondConfirmRestoreDevice != nil },
+                set: { if !$0 { secondConfirmRestoreDevice = nil } }
+            ),
+            presenting: secondConfirmRestoreDevice
+        ) { device in
+            Button(prefs.tr("Cancella Tutto ed Esegui Restore Ora", "Erase Everything & Restore Now"), role: .destructive) {
+                secondConfirmRestoreDevice = nil
+                Task {
+                    await engine.executeCfgutilAction(mode: "restore", device: device)
+                }
+            }
+            Button(prefs.tr("Annulla", "Cancel"), role: .cancel) {
+                secondConfirmRestoreDevice = nil
+            }
+        } message: { device in
+            Text(prefs.tr(
+                "Sei assolutamente sicuro di voler formattare \(device.displayTitle(in: lang))? L'operazione è irreversibile.",
+                "Are you absolutely sure you want to erase \(device.displayTitle(in: lang))? This action cannot be undone."
+            ))
         }
     }
 }
@@ -344,7 +555,6 @@ private struct ConnectionHeroBannerView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            // Responsive Topology Diagram: automatically adapts on narrow windows so nothing ever clips!
             ViewThatFits(in: .horizontal) {
                 HStack(spacing: 12) {
                     hostEndpointBadge
@@ -364,7 +574,6 @@ private struct ConnectionHeroBannerView: View {
 
             Divider()
 
-            // Row 1: Primary Hardware Action Buttons (Never truncate with "..."!)
             ViewThatFits(in: .horizontal) {
                 HStack(spacing: 12) {
                     primaryDFUButton
@@ -378,7 +587,6 @@ private struct ConnectionHeroBannerView: View {
                 }
             }
 
-            // Row 2: Secondary Quick Links & Official Apple Support Page Button
             ViewThatFits(in: .horizontal) {
                 HStack(spacing: 10) {
                     appleSupportLinkButton
@@ -590,39 +798,18 @@ struct HostMacDFUPortCard: View {
             }
 
             if let hostSpec = engine.hostMacSpec {
-                // Visual Diagram of the Host Mac's own USB-C ports!
-                HStack(alignment: .center, spacing: 16) {
-                    if hostSpec.portVisual.face != .none, let dfuIdx = hostSpec.portVisual.dfuPortIndexOneBased {
-                        CompactPortStripView(visual: hostSpec.portVisual, dfuIdx: dfuIdx, lang: lang)
-                    }
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack(spacing: 8) {
-                            Text(hostSpec.marketingName)
-                                .font(.subheadline.bold())
-                            Text("(\(hostSpec.modelIdentifier) · \(hostSpec.boardConfig))")
-                                .font(.caption.monospaced())
-                                .foregroundStyle(.secondary)
-                            if hostSpec.portVisual.isExceptionHT120694 {
-                                Text(lang.text("⚠️ ECCEZIONE HT120694", "⚠️ HT120694 EXCEPTION"))
-                                    .font(.caption2.bold())
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
-                                    .background(Color.orange.opacity(0.2))
-                                    .foregroundStyle(.orange)
-                                    .clipShape(Capsule())
-                            }
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .center, spacing: 16) {
+                        if hostSpec.portVisual.face != .none, let dfuIdx = hostSpec.portVisual.dfuPortIndexOneBased {
+                            CompactPortStripView(visual: hostSpec.portVisual, dfuIdx: dfuIdx, lang: lang)
                         }
-                        Text(hostSpec.dfuPortLocation(in: lang))
-                            .font(.callout.weight(.medium))
-                            .fixedSize(horizontal: false, vertical: true)
-                        Text(lang.text(
-                            "• Per l'ingresso DFU 1-Click via VDM (`AppleHPM`), collega il cavo a questa porta DFU di questo Mac Host (RID \(engine.selectedHostRID)) e alla porta DFU del Mac Target.\n• Se invece il Mac Target viene messo in DFU manualmente coi tasti, Apple (HT108900) consente di collegare il cavo a qualsiasi porta USB-C del Mac Host.",
-                            "• For 1-Click VDM DFU entry (`AppleHPM`), plug the cable into this Host Mac's DFU port (RID \(engine.selectedHostRID)) and the Target Mac's DFU port.\n• If the Target Mac enters DFU manually via buttons, Apple (HT108900) allows using any USB-C port on the Host Mac."
-                        ))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
+                        hostPortDetailsText(hostSpec)
+                    }
+                    VStack(alignment: .leading, spacing: 10) {
+                        if hostSpec.portVisual.face != .none, let dfuIdx = hostSpec.portVisual.dfuPortIndexOneBased {
+                            CompactPortStripView(visual: hostSpec.portVisual, dfuIdx: dfuIdx, lang: lang)
+                        }
+                        hostPortDetailsText(hostSpec)
                     }
                 }
                 .padding(12)
@@ -638,6 +825,37 @@ struct HostMacDFUPortCard: View {
             }
         }
         .styledCard()
+    }
+
+    private func hostPortDetailsText(_ hostSpec: CompatibleMacSpec) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 8) {
+                Text(hostSpec.marketingName)
+                    .font(.subheadline.bold())
+                Text("(\(hostSpec.modelIdentifier) · \(hostSpec.boardConfig))")
+                    .font(.caption.monospaced())
+                    .foregroundStyle(.secondary)
+                if hostSpec.portVisual.isExceptionHT120694 {
+                    Text(lang.text("⚠️ ECCEZIONE HT120694", "⚠️ HT120694 EXCEPTION"))
+                        .font(.caption2.bold())
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.orange.opacity(0.2))
+                        .foregroundStyle(.orange)
+                        .clipShape(Capsule())
+                }
+            }
+            Text(hostSpec.dfuPortLocation(in: lang))
+                .font(.callout.weight(.medium))
+                .fixedSize(horizontal: false, vertical: true)
+            Text(lang.text(
+                "• Per l'ingresso DFU 1-Click via VDM (`AppleHPM`), collega il cavo a questa porta DFU di questo Mac Host (RID \(engine.selectedHostRID)) e alla porta DFU del Mac Target.\n• Se invece il Mac Target viene messo in DFU manualmente coi tasti, Apple (HT108900) consente di collegare il cavo a qualsiasi porta USB-C del Mac Host.",
+                "• For 1-Click VDM DFU entry (`AppleHPM`), plug the cable into this Host Mac's DFU port (RID \(engine.selectedHostRID)) and the Target Mac's DFU port.\n• If the Target Mac enters DFU manually via buttons, Apple (HT108900) allows using any USB-C port on the Host Mac."
+            ))
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
+        }
     }
 
     private var headerLabel: some View {
@@ -808,11 +1026,32 @@ private struct DetectedTargetsActionCard: View {
                 .clipShape(Capsule())
             }
 
+            if !engine.discoveredLocalIPSWs.isEmpty {
+                Menu {
+                    ForEach(engine.discoveredLocalIPSWs, id: \.self) { url in
+                        Button(url.lastPathComponent) {
+                            engine.selectedIPSWURL = url
+                            engine.appendLog(
+                                .info,
+                                it: "Selezionato IPSW dalla cartella predefinita: \(url.lastPathComponent)",
+                                en: "Selected IPSW from default folder: \(url.lastPathComponent)"
+                            )
+                        }
+                    }
+                } label: {
+                    Label(
+                        lang.text("IPSW Trovati (\(engine.discoveredLocalIPSWs.count))", "Found IPSWs (\(engine.discoveredLocalIPSWs.count))"),
+                        systemImage: "tray.full.fill"
+                    )
+                }
+                .controlSize(.small)
+            }
+
             Button {
                 showIPSWPicker = true
             } label: {
                 Label(
-                    lang.text("Scegli IPSW Locale...", "Select Local IPSW..."),
+                    lang.text("Sfoglia IPSW...", "Browse IPSW..."),
                     systemImage: "folder.badge.plus"
                 )
             }
@@ -895,7 +1134,6 @@ private struct TargetDeviceRowCard: View {
                 }
             }
 
-            // Identity chips
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     if let spec = device.resolvedSpec {
@@ -913,7 +1151,6 @@ private struct TargetDeviceRowCard: View {
                 }
             }
 
-            // Contextual guidance
             if device.state == .billboard {
                 Label(
                     lang.text(
@@ -1197,6 +1434,13 @@ private struct LiveConsoleCard: View {
                 )
                 .font(.headline)
                 Spacer()
+                Button {
+                    engine.copyDiagnosticReportToClipboard(in: lang)
+                } label: {
+                    Label(lang.text("Copia Report", "Copy Report"), systemImage: "doc.on.clipboard")
+                }
+                .controlSize(.small)
+
                 Button(lang.text("Pulisci", "Clear")) {
                     engine.clearLogs()
                 }
@@ -1259,11 +1503,20 @@ struct HardwareDiagnosticsView: View {
             VStack(alignment: .leading, spacing: 18) {
                 // Card 1: USB & BootROM Inspector
                 VStack(alignment: .leading, spacing: 10) {
-                    Label(
-                        lang.text("Ispezione Basso Livello Bus USB & BootROM (`IOUSBHostDevice`)", "Low-Level USB Bus & BootROM Inspector (`IOUSBHostDevice`)"),
-                        systemImage: "cable.connector"
-                    )
-                    .font(.headline)
+                    HStack {
+                        Label(
+                            lang.text("Ispezione Basso Livello Bus USB & BootROM (`IOUSBHostDevice`)", "Low-Level USB Bus & BootROM Inspector (`IOUSBHostDevice`)"),
+                            systemImage: "cable.connector"
+                        )
+                        .font(.headline)
+                        Spacer()
+                        Button {
+                            engine.copyDiagnosticReportToClipboard(in: lang)
+                        } label: {
+                            Label(lang.text("Esporta Report negli Appunti", "Copy Full Diagnostic Report"), systemImage: "doc.on.clipboard.fill")
+                        }
+                        .controlSize(.small)
+                    }
 
                     if engine.detectedUSBDevices.isEmpty {
                         Text(lang.text(
@@ -1382,7 +1635,7 @@ struct HardwareDiagnosticsView: View {
                 .styledCard()
 
                 // Card 3: Serial UART & Thunderbolt Bridge
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 10) {
                     Label(
                         lang.text("Console Seriale Hardware UART (SBU) & Rete Thunderbolt Bridge", "Hardware UART Serial Console (SBU) & Thunderbolt Bridge"),
                         systemImage: "network"
@@ -1408,10 +1661,19 @@ struct HardwareDiagnosticsView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         } else {
-                            Text(engine.serialConsoleDevices.joined(separator: ", "))
-                                .font(.caption.monospaced())
-                                .foregroundStyle(.green)
-                                .textSelection(.enabled)
+                            ForEach(engine.serialConsoleDevices, id: \.self) { devPath in
+                                HStack(spacing: 6) {
+                                    Text(devPath)
+                                        .font(.caption.monospaced())
+                                        .foregroundStyle(.green)
+                                    Button {
+                                        engine.openSerialConsoleInTerminal(devicePath: devPath, baudRate: prefs.serialBaudRate)
+                                    } label: {
+                                        Label(lang.text("Apri in Terminale (\(prefs.serialBaudRate))", "Open in Terminal (\(prefs.serialBaudRate))"), systemImage: "terminal.fill")
+                                    }
+                                    .controlSize(.mini)
+                                }
+                            }
                         }
                     }
                 }
@@ -1551,10 +1813,8 @@ private struct CompatibilityDetailView: View {
                     }
                 }
 
-                // Visual Interactive USB-C Port Diagram!
                 VisualPortDiagramCard(spec: spec, lang: lang)
 
-                // Hardware Identifiers
                 VStack(alignment: .leading, spacing: 8) {
                     Label(lang.text("Identificatori Hardware & BootROM", "Hardware & BootROM Identifiers"), systemImage: "cpu")
                         .font(.headline)
@@ -1583,7 +1843,6 @@ private struct CompatibilityDetailView: View {
                 }
                 .styledCard()
 
-                // VDM & Restore Notes
                 VStack(alignment: .leading, spacing: 10) {
                     Label(lang.text("Comportamento VDM & Ripristino (Revive / Restore)", "VDM & Restore Behavior (Revive / Restore)"), systemImage: "bolt.horizontal.fill")
                         .font(.headline)
@@ -1596,7 +1855,6 @@ private struct CompatibilityDetailView: View {
                 }
                 .styledCard()
 
-                // Supported Diagnostics List
                 VStack(alignment: .leading, spacing: 8) {
                     Label(lang.text("Funzioni Supportate via Cavo dall'Host Apple Silicon", "Supported Cabled Functions from Apple Silicon Host"), systemImage: "checklist")
                         .font(.headline)
@@ -1747,7 +2005,6 @@ struct PortAndCableGuideView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                // Host Mac DFU Port Card right at the top of the guide too!
                 HostMacDFUPortCard(engine: engine, lang: lang)
 
                 VStack(alignment: .leading, spacing: 12) {
@@ -1915,5 +2172,326 @@ private struct PortRuleRow: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(isException ? Color.orange.opacity(0.1) : AppPalette.elevatedBackground(for: colorScheme))
         .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+}
+
+// MARK: - 5. Comprehensive App Settings View (Cmd+,)
+struct AppSettingsView: View {
+    @Bindable var engine: DiagnosticsEngine
+    @Bindable var prefs: AppPreferences
+    @Bindable var updater: UpdateManager
+    @State private var showFolderPicker = false
+
+    private var lang: AppLanguage { prefs.language }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                // Card 1: Language (Automatic, Italian, English) & Theme
+                VStack(alignment: .leading, spacing: 14) {
+                    Label(
+                        lang.text("Lingua & Aspetto Interfaccia", "Language & Interface Appearance"),
+                        systemImage: "globe"
+                    )
+                    .font(.headline)
+
+                    Grid(alignment: .leading, horizontalSpacing: 20, verticalSpacing: 12) {
+                        GridRow {
+                            Text(lang.text("Lingua Applicazione:", "Application Language:"))
+                                .font(.subheadline.bold())
+                            Picker("", selection: $prefs.languagePreference) {
+                                ForEach(AppLanguagePreference.allCases) { pref in
+                                    Text(pref.label(in: lang)).tag(pref)
+                                }
+                            }
+                            .labelsHidden()
+                            .frame(maxWidth: 320)
+                        }
+
+                        GridRow {
+                            Text(lang.text("Tema Visivo:", "Appearance Theme:"))
+                                .font(.subheadline.bold())
+                            Picker("", selection: $prefs.theme) {
+                                ForEach(AppThemeMode.allCases) { mode in
+                                    Label(mode.label(in: lang), systemImage: mode.iconName)
+                                        .tag(mode)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                            .labelsHidden()
+                            .frame(maxWidth: 320)
+                        }
+                    }
+
+                    Text(lang.text(
+                        "La modalità 'Automatica (Sistema)' seleziona automaticamente Italiano o Inglese in base alla lingua di macOS.",
+                        "'Automatic (System)' automatically selects Italian or English based on your macOS language."
+                    ))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
+                .styledCard()
+
+                // Card 2: Mandatory Software Updates & Verification
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Label(
+                            lang.text("Aggiornamenti Software (Obbligatori all'Uscita di Nuove Versioni)", "Software Updates (Mandatory When a Newer Release Ships)"),
+                            systemImage: "arrow.triangle.2.circlepath.circle.fill"
+                        )
+                        .font(.headline)
+                        Spacer()
+                        Text("v\(updater.currentVersion) (Build \(updater.currentBuild))")
+                            .font(.caption.monospaced().bold())
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(Color.cyan.opacity(0.18))
+                            .foregroundStyle(.cyan)
+                            .clipShape(Capsule())
+                    }
+
+                    updateStatusBanner
+
+                    HStack(spacing: 12) {
+                        Button {
+                            Task {
+                                await updater.checkForUpdates(silentIfUpToDate: false)
+                            }
+                        } label: {
+                            HStack(spacing: 6) {
+                                if updater.state == .checking {
+                                    ProgressView().controlSize(.small)
+                                } else {
+                                    Image(systemName: "arrow.clockwise.circle.fill")
+                                }
+                                Text(lang.text("Verifica Aggiornamenti Ora", "Check for Updates Now"))
+                            }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(updater.state == .checking)
+
+                        Link(destination: UpdateManager.releasesPageURL) {
+                            Label(
+                                lang.text("Pagina Release GitHub", "GitHub Releases Page"),
+                                systemImage: "arrow.up.right.square"
+                            )
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                }
+                .styledCard()
+
+                // Card 3: USB Monitoring, Audio Feedback & Host Port Behavior
+                VStack(alignment: .leading, spacing: 12) {
+                    Label(
+                        lang.text("Monitoraggio Hardware USB, Notifiche Audio & Porte AppleHPM", "USB Hardware Monitoring, Audio Alerts & AppleHPM Ports"),
+                        systemImage: "sensor.tag.radiowaves.forward.fill"
+                    )
+                    .font(.headline)
+
+                    HStack(spacing: 16) {
+                        Text(lang.text("Intervallo Scansione Automatica USB:", "Automatic USB Polling Interval:"))
+                            .font(.subheadline.bold())
+                        Picker("", selection: $prefs.pollingIntervalSeconds) {
+                            Text(lang.text("1.0 sec (Ultra-Rapido)", "1.0 sec (Ultra-Fast)")).tag(1.0)
+                            Text(lang.text("2.5 sec (Consigliato)", "2.5 sec (Recommended)")).tag(2.5)
+                            Text("5.0 sec").tag(5.0)
+                            Text("10.0 sec").tag(10.0)
+                        }
+                        .labelsHidden()
+                        .frame(maxWidth: 220)
+                    }
+
+                    Toggle(isOn: $prefs.playSoundOnDFUDetection) {
+                        HStack {
+                            Text(lang.text(
+                                "Riproduci suono di conferma appena un Mac target entra in modalità DFU",
+                                "Play confirmation chime as soon as a target Mac enters DFU mode"
+                            ))
+                            Button(lang.text("Prova Suono", "Test Sound")) {
+                                NSSound(named: NSSound.Name("Glass"))?.play()
+                            }
+                            .controlSize(.mini)
+                        }
+                    }
+
+                    Toggle(
+                        lang.text(
+                            "Seleziona automaticamente il controller AppleHPM (RID) su cui viene rilevato il Mac target",
+                            "Automatically select the Host AppleHPM controller (RID) where a target Mac is detected"
+                        ),
+                        isOn: $prefs.autoSelectHostDFUPort
+                    )
+
+                    Toggle(
+                        lang.text(
+                            "Impedisci sempre lo standby/stop di questo Mac Host mentre Mac DFU Studio è aperto",
+                            "Always prevent this Host Mac from entering idle sleep while Mac DFU Studio is open"
+                        ),
+                        isOn: $prefs.preventHostSleepAlways
+                    )
+                }
+                .styledCard()
+
+                // Card 4: IPSW Folder, Restore Safety & UART Serial Console
+                VStack(alignment: .leading, spacing: 12) {
+                    Label(
+                        lang.text("Ripristino IPSW, Sicurezza Restore & Console Seriale UART", "IPSW Restore, Safety Checks & UART Serial Console"),
+                        systemImage: "externaldrive.badge.gearshape"
+                    )
+                    .font(.headline)
+
+                    Toggle(
+                        lang.text(
+                            "Richiedi doppia conferma di sicurezza prima di avviare un Restore (formattazione completa)",
+                            "Require double safety confirmation before starting a full Erase & Restore"
+                        ),
+                        isOn: $prefs.requireDoubleConfirmForRestore
+                    )
+
+                    Divider()
+
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(lang.text("Cartella Predefinita Ricerca File IPSW:", "Default Local IPSW Search Folder:"))
+                                .font(.subheadline.bold())
+                            Text("\(prefs.defaultIPSWDirectoryPath) — \(engine.discoveredLocalIPSWs.count) file .ipsw trovati")
+                                .font(.caption.monospaced())
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Button {
+                            showFolderPicker = true
+                        } label: {
+                            Label(lang.text("Cambia Cartella...", "Change Folder..."), systemImage: "folder")
+                        }
+                        .controlSize(.small)
+                    }
+
+                    Divider()
+
+                    HStack(spacing: 16) {
+                        Text(lang.text("Baud Rate Console Seriale UART SBU (/dev/cu.debug-console):", "SBU UART Serial Console Baud Rate (/dev/cu.debug-console):"))
+                            .font(.subheadline.bold())
+                        Picker("", selection: $prefs.serialBaudRate) {
+                            Text("115200 8N1 (Standard Apple / m1n1)").tag(115200)
+                            Text("230400 8N1").tag(230400)
+                            Text("921600 8N1").tag(921600)
+                        }
+                        .labelsHidden()
+                        .frame(maxWidth: 260)
+                    }
+                }
+                .styledCard()
+
+                // Card 5: System Tools Status & Reset
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Label(
+                            lang.text("Stato Strumenti di Sistema & Reset Impostazioni", "System Tools Status & Reset Settings"),
+                            systemImage: "wrench.adjustable.fill"
+                        )
+                        .font(.headline)
+                        Spacer()
+                        Button(role: .destructive) {
+                            prefs.resetToDefaults()
+                            engine.scanDefaultIPSWFolder()
+                        } label: {
+                            Label(lang.text("Ripristina Predefinite", "Reset to Defaults"), systemImage: "arrow.counterclockwise")
+                        }
+                        .controlSize(.small)
+                    }
+
+                    Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 6) {
+                        GridRow {
+                            Text("Apple Configurator (`cfgutil`):").bold()
+                            Text(engine.cfgutilPath ?? lang.text("Non trovato (installa Apple Configurator dal Mac App Store)", "Not found (install Apple Configurator from Mac App Store)"))
+                                .font(.caption.monospaced())
+                                .foregroundStyle(engine.cfgutilPath != nil ? .green : .orange)
+                        }
+                        GridRow {
+                            Text("Helper VDM (`macdfu-vdm-helper`):").bold()
+                            Text(engine.vdmHelperPath ?? "Non trovato")
+                                .font(.caption.monospaced())
+                                .foregroundStyle(engine.vdmHelperPath != nil ? .green : .orange)
+                        }
+                        GridRow {
+                            Text("Host Board (`IOPlatformExpertDevice`):").bold()
+                            Text("\(engine.hostPlatformName) (\(engine.hostMacSpec?.marketingName ?? "Apple Silicon")) · Unlock Key \(engine.hostUnlockKeyHex)")
+                                .font(.caption.monospaced())
+                        }
+                    }
+                }
+                .styledCard()
+            }
+            .padding(20)
+        }
+        .navigationTitle(prefs.tr("Impostazioni Applicazione (⌘,)", "Application Settings (⌘,)"))
+        .fileImporter(
+            isPresented: $showFolderPicker,
+            allowedContentTypes: [.folder],
+            allowsMultipleSelection: false
+        ) { result in
+            if case .success(let urls) = result, let url = urls.first {
+                _ = url.startAccessingSecurityScopedResource()
+                prefs.defaultIPSWDirectoryPath = url.path(percentEncoded: false)
+                engine.scanDefaultIPSWFolder()
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var updateStatusBanner: some View {
+        switch updater.state {
+        case .idle:
+            Text(lang.text(
+                "Premi 'Verifica Aggiornamenti Ora' per controllare se è presente una nuova release firmata su GitHub.",
+                "Click 'Check for Updates Now' to check if a new signed release is available on GitHub."
+            ))
+            .font(.callout)
+            .foregroundStyle(.secondary)
+
+        case .checking:
+            HStack(spacing: 8) {
+                ProgressView().controlSize(.small)
+                Text(lang.text("Controllo ultima release su GitHub in corso...", "Checking latest release on GitHub..."))
+                    .font(.callout)
+            }
+
+        case .upToDate(let ver, let date):
+            Label(
+                lang.text(
+                    "Mac DFU Studio v\(ver) è aggiornato all'ultima versione disponibile (verificato alle \(date.formatted(date: .omitted, time: .shortened))).",
+                    "Mac DFU Studio v\(ver) is up to date (checked at \(date.formatted(date: .omitted, time: .shortened)))."
+                ),
+                systemImage: "checkmark.seal.fill"
+            )
+            .font(.callout.bold())
+            .foregroundStyle(.green)
+
+        case .updateRequired(let rel, _):
+            Label(
+                lang.text(
+                    "Nuova versione obbligatoria v\(rel.cleanVersion) rilevata! Premi 'Aggiorna e Riavvia App' nella finestra di aggiornamento.",
+                    "New mandatory version v\(rel.cleanVersion) found! Click 'Update and Restart App' in the update modal."
+                ),
+                systemImage: "exclamationmark.arrow.trianglehead.2.clockwise.rotate.90"
+            )
+            .font(.callout.bold())
+            .foregroundStyle(.orange)
+
+        case .downloading(let rel, let prog, _, _):
+            Text(lang.text("Download v\(rel.cleanVersion) in corso (\(Int(prog * 100))%)...", "Downloading v\(rel.cleanVersion) (\(Int(prog * 100))%)..."))
+                .font(.callout)
+
+        case .installing(_, let stageIT, let stageEN):
+            Text(lang == .it ? stageIT : stageEN)
+                .font(.callout)
+
+        case .failed(let msgIT, let msgEN, _):
+            Label(lang == .it ? msgIT : msgEN, systemImage: "exclamationmark.triangle.fill")
+                .font(.callout)
+                .foregroundStyle(.orange)
+        }
     }
 }

@@ -52,9 +52,23 @@ codesign --force --options runtime --timestamp \
 codesign --verify --strict --deep --verbose=2 "$STAGE_APP"
 echo "    App signature verified."
 
+notarize_file() {
+    local file_to_submit="$1"
+    local attempt=1
+    while (( attempt <= 3 )); do
+        echo "    [Attempt $attempt/3] notarytool submit $(basename "$file_to_submit")..."
+        if xcrun notarytool submit "$file_to_submit" --keychain-profile "$NOTARY_PROFILE" --wait; then
+            return 0
+        fi
+        sleep 2
+        (( attempt++ ))
+    done
+    return 1
+}
+
 echo "==> 4. Submitting MacDFUDiagnostics.app to Apple Notary Service (profile: $NOTARY_PROFILE)..."
 ditto -c -k --sequesterRsrc --keepParent "$STAGE_APP" "$APP_ZIP"
-xcrun notarytool submit "$APP_ZIP" --keychain-profile "$NOTARY_PROFILE" --wait
+notarize_file "$APP_ZIP"
 
 echo "==> 5. Stapling notarization ticket to MacDFUDiagnostics.app..."
 xcrun stapler staple "$STAGE_APP"
@@ -90,7 +104,7 @@ hdiutil convert "$RW_DMG" -format ULFO -o "$FINAL_DMG" -quiet
 
 echo "==> 7. Signing, Notarizing & Stapling DMG..."
 codesign --force --timestamp --sign "$SIGN_IDENTITY" "$FINAL_DMG"
-xcrun notarytool submit "$FINAL_DMG" --keychain-profile "$NOTARY_PROFILE" --wait
+notarize_file "$FINAL_DMG"
 xcrun stapler staple "$FINAL_DMG"
 xcrun stapler validate "$FINAL_DMG"
 spctl -a -vv -t open --context context:primary-signature "$FINAL_DMG"

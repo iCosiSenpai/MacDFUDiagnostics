@@ -1,4 +1,5 @@
 import Foundation
+import AppKit
 import Observation
 import CHPMBridge
 
@@ -196,20 +197,13 @@ final class DiagnosticsEngine {
     private(set) var vdmHelperPath: String?
     private(set) var macvdmtoolPath: String?
 
-    static func appleDFUPortSupportURL(for lang: AppLanguage) -> URL {
-        URL(string: lang == .it ? "https://support.apple.com/it-it/120694" : "https://support.apple.com/en-us/120694")!
-    }
-
-    static func appleReviveRestoreSupportURL(for lang: AppLanguage) -> URL {
-        URL(string: lang == .it ? "https://support.apple.com/it-it/108900" : "https://support.apple.com/en-us/108900")!
-    }
-
     // Live Hardware State
     private(set) var hostPorts: [HostPortStatus] = []
     private(set) var detectedUSBDevices: [DetectedAppleUSBDevice] = []
     private(set) var externalTargetDisks: [ExternalTargetDisk] = []
     private(set) var serialConsoleDevices: [String] = []
     private(set) var thunderboltBridgeState: ThunderboltBridgeState = .notConfigured
+    private(set) var discoveredLocalIPSWs: [URL] = []
 
     // Operation State
     private(set) var isBusy: Bool = false
@@ -223,6 +217,16 @@ final class DiagnosticsEngine {
     var selectedIPSWURL: URL?
 
     private var monitorTask: Task<Void, Never>?
+    private var previousDFUDeviceIDs: Set<String> = []
+    weak var preferences: AppPreferences?
+
+    static func appleDFUPortSupportURL(for lang: AppLanguage) -> URL {
+        URL(string: lang == .it ? "https://support.apple.com/it-it/120694" : "https://support.apple.com/en-us/120694")!
+    }
+
+    static func appleReviveRestoreSupportURL(for lang: AppLanguage) -> URL {
+        URL(string: lang == .it ? "https://support.apple.com/it-it/108900" : "https://support.apple.com/en-us/108900")!
+    }
 
     init() {
         refreshHostCapabilities()
@@ -238,7 +242,8 @@ final class DiagnosticsEngine {
         monitorTask = Task { [weak self] in
             while !Task.isCancelled {
                 self?.refreshUSBAndPorts()
-                try? await Task.sleep(for: .seconds(2.5))
+                let interval = max(1.0, self?.preferences?.pollingIntervalSeconds ?? 2.5)
+                try? await Task.sleep(for: .seconds(interval))
             }
         }
     }
@@ -266,7 +271,7 @@ final class DiagnosticsEngine {
         logs.removeAll()
     }
 
-    // MARK: - Host Capabilities
+    // MARK: - Host Capabilities & Local IPSW Scan
     func refreshHostCapabilities() {
         #if arch(arm64)
         isAppleSiliconHost = true
@@ -316,6 +321,25 @@ final class DiagnosticsEngine {
             "/opt/homebrew/bin/macvdmtool"
         ]
         macvdmtoolPath = vdmCandidates.first { FileManager.default.isExecutableFile(atPath: $0) }
+
+        scanDefaultIPSWFolder()
+    }
+
+    func scanDefaultIPSWFolder() {
+        let dirPath = preferences?.defaultIPSWDirectoryPath
+            ?? FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Downloads").path
+        let dirURL = URL(fileURLWithPath: dirPath)
+        guard let items = try? FileManager.default.contentsOfDirectory(
+            at: dirURL,
+            includingPropertiesForKeys: [.contentModificationDateKey, .fileSizeKey],
+            options: [.skipsHiddenFiles]
+        ) else {
+            discoveredLocalIPSWs = []
+            return
+        }
+        discoveredLocalIPSWs = items
+            .filter { $0.pathExtension.lowercased() == "ipsw" }
+            .sorted { $0.lastPathComponent > $1.lastPathComponent }
     }
 
     func refreshAllHardware() {
@@ -416,6 +440,29 @@ final class DiagnosticsEngine {
                 hostPortLocation: matchedPort?.locationName,
                 isOnHostDFUPort: matchedPort?.isDFUCapable ?? false
             ))
+        }
+
+        // Check for newly arrived DFU devices to trigger sound / auto port selection
+        let currentDFUIDs = Set(parsedDevs.filter { $0.state.isRestorableDFU }.map(\.id))
+        let newlyArrivedDFU = currentDFUIDs.subtracting(previousDFUDeviceIDs)
+        if !newlyArrivedDFU.isEmpty {
+            if preferences?.playSoundOnDFUDetection ?? true {
+                NSSound(named: NSSound.Name("Glass"))?.play()
+            }
+            if let firstNew = parsedDevs.first(where: { newlyArrivedDFU.contains($0.id) }) {
+                appendLog(
+                    .success,
+                    it: "Rilevato ingresso in DFU: \(firstNew.displayTitle(in: .it)) (ECID: \(firstNew.ecidHex ?? "N/D"))",
+                    en: "Detected DFU arrival: \(firstNew.displayTitle(in: .en)) (ECID: \(firstNew.ecidHex ?? "N/A"))"
+                )
+            }
+        }
+        previousDFUDeviceIDs = currentDFUIDs
+
+        if preferences?.autoSelectHostDFUPort ?? true,
+           let connectedRID = parsedDevs.compactMap(\.hostPortRID).first,
+           selectedHostRID != connectedRID {
+            selectedHostRID = connectedRID
         }
 
         if detectedUSBDevices != parsedDevs {
@@ -697,7 +744,70 @@ final class DiagnosticsEngine {
         }
     }
 
-    // MARK: - Target Disk Mode & Thunderbolt Bridge Diagnostics
+    // MARK: - Target Disk Mode, Serial Terminal & Diagnostic Export
+    func openSerialConsoleInTerminal(devicePath: String, baudRate: Int) {
+        let script = """
+        tell application "Terminal"
+            activate
+            do script "screen \(devicePath) \(baudRate)"
+        end tell
+        """
+        Task {
+            _ = await Self.runProcess("/usr/bin/osascript", ["-e", script])
+            appendLog(
+                .info,
+                it: "Aperta sessione seriale in Terminale: screen \(devicePath) \(baudRate)",
+                en: "Opened serial session in Terminal: screen \(devicePath) \(baudRate)"
+            )
+        }
+    }
+
+    func generateDiagnosticReport(in lang: AppLanguage) -> String {
+        var lines: [String] = []
+        lines.append("=== MAC DFU STUDIO — DIAGNOSTIC REPORT ===")
+        lines.append("Timestamp: \(ISO8601DateFormatter().string(from: Date()))")
+        lines.append("Host Platform: \(hostPlatformName) (\(hostMacSpec?.marketingName ?? "Apple Silicon"))")
+        lines.append("Host HPM Unlock Key: \(hostUnlockKeyHex)")
+        lines.append("Host Free Space: \(ByteCountFormatter.string(fromByteCount: hostFreeSpaceBytes, countStyle: .file))")
+        lines.append("cfgutil: \(cfgutilPath ?? "Not installed")")
+        lines.append("Thunderbolt Bridge: \(thunderboltBridgeState.label(in: lang))")
+        lines.append("")
+        lines.append("--- HOST APPLEHPM PORTS (\(hostPorts.count)) ---")
+        for p in hostPorts {
+            lines.append("RID \(p.rid) | \(p.locationName) | USB Base: \(p.locationBaseHex) | DFU Capable: \(p.isDFUCapable)")
+        }
+        lines.append("")
+        lines.append("--- DETECTED APPLE USB TARGETS (\(detectedUSBDevices.count)) ---")
+        for d in detectedUSBDevices {
+            lines.append("• \(d.displayTitle(in: lang)) [\(d.state.label(in: lang))]")
+            lines.append("  VID:PID=\(d.vidPidHex) bcdDevice=\(d.bcdVersionString) Loc=\(d.locationHex) HostRID=\(d.hostPortRID.map(String.init) ?? "N/A")")
+            lines.append("  CPID=\(d.cpid.map { String(format: "0x%04X", $0) } ?? "N/A") BDID=\(d.bdid.map { String(format: "0x%02X", $0) } ?? "N/A") ECID=\(d.ecidHex ?? "N/A") SRTG=\(d.srtg ?? "N/A")")
+            lines.append("  Raw Serial: \(d.rawSerial)")
+        }
+        lines.append("")
+        lines.append("--- EXTERNAL / TARGET DISK MODE DISKS (\(externalTargetDisks.count)) ---")
+        for disk in externalTargetDisks {
+            lines.append("• /dev/\(disk.deviceIdentifier) — \(disk.mediaName) (\(disk.formattedSize)) | Bus: \(disk.busProtocol) | SMART: \(disk.smartStatus)")
+        }
+        lines.append("")
+        lines.append("--- ACTIVITY LOG (\(logs.count)) ---")
+        for entry in logs {
+            lines.append("[\(entry.level.rawValue)] \(entry.message(in: lang))")
+        }
+        return lines.joined(separator: "\n")
+    }
+
+    func copyDiagnosticReportToClipboard(in lang: AppLanguage) {
+        let report = generateDiagnosticReport(in: lang)
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(report, forType: .string)
+        appendLog(
+            .success,
+            it: "Report diagnostico completo copiato negli appunti.",
+            en: "Full diagnostic report copied to clipboard."
+        )
+    }
+
     func refreshExternalTargetDisks() async {
         let (_, xmlOut) = await Self.runProcess("/usr/sbin/diskutil", ["list", "-plist", "external"])
         guard let plistData = xmlOut.data(using: .utf8),
