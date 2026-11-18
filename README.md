@@ -17,10 +17,6 @@
   <a href="https://github.com/iCosiSenpai/MacDFUDiagnostics/releases/latest">📦 Download Notarized DMG</a>
 </p>
 
-<p align="center">
-  <img src="docs/images/dmg-preview.png" width="660" alt="Mac DFU Studio DMG Installer" />
-</p>
-
 ---
 
 ## 🇮🇹 Italiano — Documentazione Completa
