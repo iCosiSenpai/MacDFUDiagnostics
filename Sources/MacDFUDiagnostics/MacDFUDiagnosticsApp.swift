@@ -13,7 +13,7 @@ struct MacDFUDiagnosticsApp: App {
     var body: some Scene {
         WindowGroup("Mac DFU Studio — Apple Silicon & Intel T2 / TDM") {
             MainRootView(engine: engine, prefs: prefs)
-                .frame(minWidth: 1020, minHeight: 680)
+                .frame(minWidth: 860, minHeight: 620)
                 .onAppear {
                     prefs.theme.applyToNSApp()
                     if let iconURL = Bundle.main.url(forResource: "AppIcon", withExtension: "icns"),
@@ -27,5 +27,6 @@ struct MacDFUDiagnosticsApp: App {
                     engine.stopMonitoring()
                 }
         }
+        .defaultSize(width: 1120, height: 760)
     }
 }

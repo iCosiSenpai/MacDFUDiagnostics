@@ -26,13 +26,13 @@ enum NavigationSection: String, CaseIterable, Identifiable, Equatable {
     func subtitle(in lang: AppLanguage) -> String {
         switch self {
         case .dfuDashboard:
-            lang.text("DFU automatico, Reboot, Revive e Restore", "Auto DFU, Reboot, Revive & Restore")
+            lang.text("DFU automatico, Porta Host, Revive e Restore", "Auto DFU, Host Port, Revive & Restore")
         case .diagnostics:
             lang.text("BootROM USB, SMART, Target Disk e Seriale", "USB BootROM, SMART, Target Disk & Serial")
         case .compatibility:
             lang.text("Apple Silicon, Intel T2 e Pre-T2 con mappa porte", "Apple Silicon, Intel T2 & Pre-T2 port map")
         case .portGuide:
-            lang.text("Regole ufficiali Apple HT120694", "Official Apple HT120694 rules")
+            lang.text("Regole ufficiali Apple HT120694 & HT108900", "Official Apple HT120694 & HT108900 rules")
         }
     }
 
@@ -63,7 +63,7 @@ struct MainRootView: View {
                 .listStyle(.sidebar)
                 HostStatusFooterView(engine: engine, lang: prefs.language)
             }
-            .navigationSplitViewColumnWidth(min: 245, ideal: 265)
+            .navigationSplitViewColumnWidth(min: 235, ideal: 255)
         } detail: {
             Group {
                 switch selectedSection {
@@ -79,7 +79,7 @@ struct MainRootView: View {
                 case .compatibility:
                     CompatibilityExplorerView(prefs: prefs)
                 case .portGuide:
-                    PortAndCableGuideView(prefs: prefs)
+                    PortAndCableGuideView(engine: engine, prefs: prefs)
                 }
             }
         }
@@ -90,33 +90,33 @@ struct MainRootView: View {
                     HStack(spacing: 6) {
                         ProgressView()
                             .controlSize(.small)
-                        Text(engine.currentOperationTitle(in: prefs.language) ?? prefs.tr("Operazione in corso...", "Working..."))
-                            .font(.callout)
+                        Text(engine.currentOperationTitle(in: prefs.language) ?? prefs.tr("In corso...", "Working..."))
+                            .font(.caption)
                             .foregroundStyle(.secondary)
+                            .lineLimit(1)
                     }
-                    .padding(.horizontal, 8)
                 }
 
-                // Language Switcher (IT / EN)
+                // Compact Language Switcher (IT / EN) — never overflows toolbar
                 Picker(prefs.tr("Lingua", "Language"), selection: $prefs.language) {
-                    ForEach(AppLanguage.allCases) { lang in
-                        Text(lang.displayName).tag(lang)
-                    }
+                    Text("🇮🇹 IT").tag(AppLanguage.it)
+                    Text("🇬🇧 EN").tag(AppLanguage.en)
                 }
                 .pickerStyle(.segmented)
-                .frame(width: 185)
+                .frame(width: 112)
                 .help(prefs.tr("Cambia lingua (Italiano / Inglese)", "Switch language (Italian / English)"))
 
-                // Theme Switcher (System / Light / Dark)
+                // Compact Theme Switcher
                 Picker(prefs.tr("Tema", "Theme"), selection: $prefs.theme) {
                     ForEach(AppThemeMode.allCases) { mode in
-                        Label(mode.label(in: prefs.language), systemImage: mode.iconName)
+                        Image(systemName: mode.iconName)
+                            .help(mode.label(in: prefs.language))
                             .tag(mode)
                     }
                 }
                 .pickerStyle(.segmented)
-                .frame(width: 120)
-                .help(prefs.tr("Tema Chiaro / Scuro / Sistema", "Light / Dark / System Theme"))
+                .frame(width: 98)
+                .help(prefs.tr("Tema: Sistema / Chiaro / Scuro", "Theme: System / Light / Dark"))
 
                 Button {
                     engine.refreshAllHardware()
@@ -199,10 +199,14 @@ private struct HostStatusFooterView: View {
                 Circle()
                     .fill(engine.isAppleSiliconHost ? Color.green : Color.red)
                     .frame(width: 8, height: 8)
-                Text(engine.isAppleSiliconHost
-                     ? lang.text("Host Silicon (\(engine.hostPlatformName))", "Silicon Host (\(engine.hostPlatformName))")
-                     : lang.text("Host Non-Silicon", "Non-Silicon Host"))
+                Text(engine.hostMacSpec?.marketingName ?? "Host \(engine.hostPlatformName)")
                     .font(.caption.bold())
+                    .lineLimit(1)
+            }
+            HStack(spacing: 6) {
+                Text("Board: \(engine.hostPlatformName)")
+                    .font(.caption2.monospaced())
+                    .foregroundStyle(.secondary)
                 Spacer()
                 Text(ByteCountFormatter.string(fromByteCount: engine.hostFreeSpaceBytes, countStyle: .file))
                     .font(.caption2.monospaced())
@@ -246,8 +250,8 @@ struct DFUDashboardView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
-                // 1. Visual Hero Connection Banner & 1-Click Primary Actions
+            VStack(alignment: .leading, spacing: 16) {
+                // 1. Responsive Hero Connection Banner & Non-Truncating Action Bar
                 ConnectionHeroBannerView(
                     engine: engine,
                     lang: lang,
@@ -255,7 +259,10 @@ struct DFUDashboardView: View {
                     onOpenCompatibility: onOpenCompatibility
                 )
 
-                // 2. Active Target Device Card (or Step-by-Step Quick Guide when no device is in DFU)
+                // 2. Host Mac DFU Port Card + Official Apple Support Link Button!
+                HostMacDFUPortCard(engine: engine, lang: lang)
+
+                // 3. Active Target Device Card (or Step-by-Step Quick Guide)
                 DetectedTargetsActionCard(
                     engine: engine,
                     lang: lang,
@@ -263,17 +270,17 @@ struct DFUDashboardView: View {
                     confirmRestoreDevice: $confirmRestoreDevice
                 )
 
-                // 3. Expandable Advanced VDM & Port Topology Drawer (keeps UI clean and easy!)
+                // 4. Expandable Advanced VDM & Port Topology Drawer
                 AdvancedVDMControlsCard(
                     engine: engine,
                     lang: lang,
                     isExpanded: $showAdvancedVDM
                 )
 
-                // 4. Activity Log Console
+                // 5. Activity Log Console
                 LiveConsoleCard(engine: engine, lang: lang)
             }
-            .padding(22)
+            .padding(20)
         }
         .navigationTitle(prefs.tr("Dashboard DFU 1-Click & Ripristino", "1-Click DFU & Restore Dashboard"))
         .fileImporter(
@@ -336,129 +343,75 @@ private struct ConnectionHeroBannerView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // Top Visual Topology Diagram: Host <-> USB-C Cable <-> Target
-            HStack(spacing: 14) {
-                // Host Badge
-                HStack(spacing: 10) {
-                    Image(systemName: "desktopcomputer")
-                        .font(.title2)
-                        .foregroundStyle(.cyan)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(lang.text("HOST APPLE SILICON", "APPLE SILICON HOST"))
-                            .font(.caption2.weight(.heavy))
-                            .foregroundStyle(.secondary)
-                        Text(engine.hostPlatformName)
-                            .font(.subheadline.bold())
-                        Text("Porta RID \(engine.selectedHostRID)")
-                            .font(.caption2.monospaced())
-                            .foregroundStyle(.secondary)
-                    }
+        VStack(alignment: .leading, spacing: 14) {
+            // Responsive Topology Diagram: automatically adapts on narrow windows so nothing ever clips!
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    hostEndpointBadge
+                    cableStatusBadge
+                        .frame(minWidth: 165)
+                    targetEndpointBadge
                 }
-                .padding(10)
-                .background(AppPalette.elevatedBackground(for: colorScheme))
-                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
 
-                // Cable Link Indicator
-                VStack(spacing: 4) {
-                    HStack(spacing: 4) {
-                        Circle()
-                            .fill(primaryTarget != nil ? Color.green : Color.orange)
-                            .frame(width: 7, height: 7)
-                        Text(primaryTarget != nil
-                             ? lang.text("Cavo USB-C Attivo", "USB-C Link Active")
-                             : lang.text("In attesa su Porta DFU", "Waiting on DFU Port"))
-                            .font(.caption2.bold())
+                VStack(spacing: 10) {
+                    HStack(spacing: 10) {
+                        hostEndpointBadge
+                        targetEndpointBadge
                     }
-                    Image(systemName: "arrow.left.and.right.circle.fill")
-                        .font(.title3)
-                        .foregroundStyle(primaryTarget != nil ? Color.green : Color.secondary)
-                    Text("USB-PD VDM (0x05AC)")
-                        .font(.caption2.monospaced())
-                        .foregroundStyle(.secondary)
+                    cableStatusBadge
                 }
-                .frame(maxWidth: .infinity)
-
-                // Target Badge
-                HStack(spacing: 10) {
-                    Image(systemName: primaryTarget?.isIntelT2 == true ? "cpu.fill" : "laptopcomputer")
-                        .font(.title2)
-                        .foregroundStyle(primaryTarget?.state.isRestorableDFU == true ? Color.green : Color.orange)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(lang.text("DISPOSITIVO TARGET", "TARGET DEVICE"))
-                            .font(.caption2.weight(.heavy))
-                            .foregroundStyle(.secondary)
-                        Text(primaryTarget?.displayTitle(in: lang) ?? lang.text("Nessun Mac in DFU", "No Mac in DFU"))
-                            .font(.subheadline.bold())
-                            .lineLimit(1)
-                        Text(primaryTarget?.state.label(in: lang) ?? lang.text("Premi 1-Click DFU sotto", "Click 1-Click DFU below"))
-                            .font(.caption2)
-                            .foregroundStyle(primaryTarget?.state.isRestorableDFU == true ? Color.green : Color.secondary)
-                    }
-                }
-                .padding(10)
-                .background(AppPalette.elevatedBackground(for: colorScheme))
-                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
 
             Divider()
 
-            // Primary 1-Click Action Bar
-            HStack(spacing: 12) {
-                Button {
-                    Task {
-                        await engine.executeVDMCommand(
-                            "dfu",
-                            titleIT: "Ingresso DFU Automatico (Apple Silicon + Intel T2)",
-                            titleEN: "Automatic DFU Entry (Apple Silicon + Intel T2)"
-                        )
+            // Row 1: Primary Hardware Action Buttons (Never truncate with "..."!)
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    primaryDFUButton
+                    rebootTargetButton
+                    Spacer(minLength: 0)
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    primaryDFUButton
+                    rebootTargetButton
+                }
+            }
+
+            // Row 2: Secondary Quick Links & Official Apple Support Page Button
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 10) {
+                    appleSupportLinkButton
+                    Button(action: onOpenPortGuide) {
+                        Label(lang.text("Mappa Porte DFU", "DFU Port Map"), systemImage: "cable.connector.horizontal")
                     }
-                } label: {
-                    Label(
-                        lang.text("1-Click Entra in DFU (Silicon + Intel T2)", "1-Click Enter DFU (Silicon + Intel T2)"),
-                        systemImage: "bolt.circle.fill"
-                    )
-                    .font(.headline)
-                    .padding(.vertical, 4)
-                    .padding(.horizontal, 6)
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .disabled(engine.isBusy)
+                    .controlSize(.small)
 
-                Button {
-                    Task {
-                        await engine.executeVDMCommand(
-                            "reboot",
-                            titleIT: "Riavvio Remoto Target (Uscita DFU)",
-                            titleEN: "Remote Target Reboot (Exit DFU)"
-                        )
+                    Button(action: onOpenCompatibility) {
+                        Label(lang.text("Database Mac Compatibili", "Compatible Macs DB"), systemImage: "laptopcomputer.and.ipad")
                     }
-                } label: {
-                    Label(
-                        lang.text("Riavvia Target (Esci da DFU)", "Reboot Target (Exit DFU)"),
-                        systemImage: "restart.circle.fill"
-                    )
-                    .padding(.vertical, 4)
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.large)
-                .disabled(engine.isBusy)
+                    .controlSize(.small)
 
-                Spacer()
-
-                Button(action: onOpenCompatibility) {
-                    Label(lang.text("Verifica Modello", "Check Model"), systemImage: "magnifyingglass")
+                    Spacer(minLength: 0)
                 }
-                .controlSize(.regular)
 
-                Button(action: onOpenPortGuide) {
-                    Label(lang.text("Quale Porta DFU?", "Which DFU Port?"), systemImage: "cable.connector.horizontal")
+                VStack(alignment: .leading, spacing: 6) {
+                    appleSupportLinkButton
+                    HStack(spacing: 8) {
+                        Button(action: onOpenPortGuide) {
+                            Label(lang.text("Mappa Porte DFU", "DFU Port Map"), systemImage: "cable.connector.horizontal")
+                        }
+                        .controlSize(.small)
+
+                        Button(action: onOpenCompatibility) {
+                            Label(lang.text("Mac Compatibili", "Compatible Macs"), systemImage: "laptopcomputer.and.ipad")
+                        }
+                        .controlSize(.small)
+                    }
                 }
-                .controlSize(.regular)
             }
         }
-        .padding(18)
+        .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .fill(AppPalette.heroGradient(for: colorScheme, hasTarget: primaryTarget?.state.isRestorableDFU == true))
@@ -471,6 +424,302 @@ private struct ConnectionHeroBannerView: View {
                 )
         )
     }
+
+    private var hostEndpointBadge: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "desktopcomputer")
+                .font(.title2)
+                .foregroundStyle(.cyan)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(lang.text("MAC HOST (SILICON)", "HOST MAC (SILICON)"))
+                    .font(.caption2.weight(.heavy))
+                    .foregroundStyle(.secondary)
+                Text(engine.hostMacSpec?.marketingName ?? engine.hostPlatformName)
+                    .font(.subheadline.bold())
+                    .fixedSize(horizontal: false, vertical: true)
+                Text("Board \(engine.hostPlatformName) · RID \(engine.selectedHostRID)")
+                    .font(.caption2.monospaced())
+                    .foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(AppPalette.elevatedBackground(for: colorScheme))
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+    }
+
+    private var cableStatusBadge: some View {
+        VStack(spacing: 4) {
+            HStack(spacing: 5) {
+                Circle()
+                    .fill(primaryTarget != nil ? Color.green : Color.orange)
+                    .frame(width: 8, height: 8)
+                Text(primaryTarget != nil
+                     ? lang.text("Cavo USB-C Connesso", "USB-C Cable Linked")
+                     : lang.text("In attesa su Porta DFU", "Waiting on DFU Port"))
+                    .font(.caption.bold())
+                    .fixedSize()
+            }
+            Image(systemName: "arrow.left.and.right.circle.fill")
+                .font(.title3)
+                .foregroundStyle(primaryTarget != nil ? Color.green : Color.secondary)
+            Text("USB-PD VDM (0x05AC)")
+                .font(.caption2.monospaced())
+                .foregroundStyle(.secondary)
+                .fixedSize()
+        }
+        .padding(.horizontal, 8)
+    }
+
+    private var targetEndpointBadge: some View {
+        HStack(spacing: 10) {
+            Image(systemName: primaryTarget?.isIntelT2 == true ? "cpu.fill" : "laptopcomputer")
+                .font(.title2)
+                .foregroundStyle(primaryTarget?.state.isRestorableDFU == true ? Color.green : Color.orange)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(lang.text("MAC TARGET", "TARGET MAC"))
+                    .font(.caption2.weight(.heavy))
+                    .foregroundStyle(.secondary)
+                Text(primaryTarget?.displayTitle(in: lang) ?? lang.text("Nessun Mac in DFU", "No Mac in DFU"))
+                    .font(.subheadline.bold())
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(primaryTarget?.state.label(in: lang) ?? lang.text("Premi 1-Click Entra in DFU", "Press 1-Click Enter DFU"))
+                    .font(.caption2)
+                    .foregroundStyle(primaryTarget?.state.isRestorableDFU == true ? Color.green : Color.secondary)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(AppPalette.elevatedBackground(for: colorScheme))
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+    }
+
+    private var primaryDFUButton: some View {
+        Button {
+            Task {
+                await engine.executeVDMCommand(
+                    "dfu",
+                    titleIT: "Ingresso DFU Automatico (Apple Silicon + Intel T2)",
+                    titleEN: "Automatic DFU Entry (Apple Silicon + Intel T2)"
+                )
+            }
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "bolt.circle.fill")
+                    .font(.title3)
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(lang.text("1-Click Entra in DFU", "1-Click Enter DFU"))
+                        .font(.subheadline.bold())
+                    Text(lang.text("Auto Apple Silicon + Intel T2", "Auto Apple Silicon + Intel T2"))
+                        .font(.caption2)
+                        .opacity(0.9)
+                }
+            }
+            .padding(.vertical, 3)
+            .padding(.horizontal, 6)
+            .fixedSize(horizontal: true, vertical: false)
+        }
+        .buttonStyle(.borderedProminent)
+        .controlSize(.large)
+        .disabled(engine.isBusy)
+    }
+
+    private var rebootTargetButton: some View {
+        Button {
+            Task {
+                await engine.executeVDMCommand(
+                    "reboot",
+                    titleIT: "Riavvio Remoto Target (Uscita DFU)",
+                    titleEN: "Remote Target Reboot (Exit DFU)"
+                )
+            }
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "restart.circle.fill")
+                    .font(.title3)
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(lang.text("Riavvia Target", "Reboot Target"))
+                        .font(.subheadline.bold())
+                    Text(lang.text("Esci da modalità DFU", "Exit DFU mode"))
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding(.vertical, 3)
+            .padding(.horizontal, 6)
+            .fixedSize(horizontal: true, vertical: false)
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.large)
+        .disabled(engine.isBusy)
+    }
+
+    private var appleSupportLinkButton: some View {
+        Link(destination: DiagnosticsEngine.appleDFUPortSupportURL(for: lang)) {
+            Label(
+                lang.text("Sito Apple: Porte DFU dei Mac (HT120694)", "Apple Support: Mac DFU Ports (HT120694)"),
+                systemImage: "arrow.up.right.square.fill"
+            )
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+    }
+}
+
+// MARK: - Dedicated Host Mac DFU Port Card + Official Apple Support Link
+struct HostMacDFUPortCard: View {
+    @Environment(\.colorScheme) private var colorScheme
+    let engine: DiagnosticsEngine
+    let lang: AppLanguage
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .center) {
+                    headerLabel
+                    Spacer()
+                    officialAppleButtons
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    headerLabel
+                    officialAppleButtons
+                }
+            }
+
+            if let hostSpec = engine.hostMacSpec {
+                // Visual Diagram of the Host Mac's own USB-C ports!
+                HStack(alignment: .center, spacing: 16) {
+                    if hostSpec.portVisual.face != .none, let dfuIdx = hostSpec.portVisual.dfuPortIndexOneBased {
+                        CompactPortStripView(visual: hostSpec.portVisual, dfuIdx: dfuIdx, lang: lang)
+                    }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 8) {
+                            Text(hostSpec.marketingName)
+                                .font(.subheadline.bold())
+                            Text("(\(hostSpec.modelIdentifier) · \(hostSpec.boardConfig))")
+                                .font(.caption.monospaced())
+                                .foregroundStyle(.secondary)
+                            if hostSpec.portVisual.isExceptionHT120694 {
+                                Text(lang.text("⚠️ ECCEZIONE HT120694", "⚠️ HT120694 EXCEPTION"))
+                                    .font(.caption2.bold())
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.orange.opacity(0.2))
+                                    .foregroundStyle(.orange)
+                                    .clipShape(Capsule())
+                            }
+                        }
+                        Text(hostSpec.dfuPortLocation(in: lang))
+                            .font(.callout.weight(.medium))
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text(lang.text(
+                            "• Per l'ingresso DFU 1-Click via VDM (`AppleHPM`), collega il cavo a questa porta DFU di questo Mac Host (RID \(engine.selectedHostRID)) e alla porta DFU del Mac Target.\n• Se invece il Mac Target viene messo in DFU manualmente coi tasti, Apple (HT108900) consente di collegare il cavo a qualsiasi porta USB-C del Mac Host.",
+                            "• For 1-Click VDM DFU entry (`AppleHPM`), plug the cable into this Host Mac's DFU port (RID \(engine.selectedHostRID)) and the Target Mac's DFU port.\n• If the Target Mac enters DFU manually via buttons, Apple (HT108900) allows using any USB-C port on the Host Mac."
+                        ))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                .padding(12)
+                .background(AppPalette.elevatedBackground(for: colorScheme))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            } else {
+                Text(lang.text(
+                    "Questo Mac Host (\(engine.hostPlatformName)) espone \(engine.hostPorts.count) porte AppleHPM. Per l'ingresso DFU 1-Click VDM usa la porta con RID 0 (la porta DFU principale del Mac Host).",
+                    "This Host Mac (\(engine.hostPlatformName)) exposes \(engine.hostPorts.count) AppleHPM ports. For 1-Click VDM DFU entry use the port with RID 0 (the Host Mac's primary DFU port)."
+                ))
+                .font(.callout)
+                .foregroundStyle(.secondary)
+            }
+        }
+        .styledCard()
+    }
+
+    private var headerLabel: some View {
+        Label(
+            lang.text("1. Porta DFU di Questo Mac Host (\(engine.hostMacSpec?.marketingName ?? engine.hostPlatformName))",
+                      "1. DFU Port on This Host Mac (\(engine.hostMacSpec?.marketingName ?? engine.hostPlatformName))"),
+            systemImage: "laptopcomputer.and.arrow.down"
+        )
+        .font(.headline)
+    }
+
+    private var officialAppleButtons: some View {
+        HStack(spacing: 8) {
+            Link(destination: DiagnosticsEngine.appleDFUPortSupportURL(for: lang)) {
+                Label(
+                    lang.text("Guida Apple Porte DFU (HT120694)", "Apple DFU Port Guide (HT120694)"),
+                    systemImage: "safari.fill"
+                )
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.cyan)
+            .controlSize(.small)
+
+            Link(destination: DiagnosticsEngine.appleReviveRestoreSupportURL(for: lang)) {
+                Label(
+                    lang.text("Guida Apple Revive/Restore (HT108900)", "Apple Revive/Restore Guide (HT108900)"),
+                    systemImage: "arrow.up.right.square"
+                )
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+        }
+    }
+}
+
+private struct CompactPortStripView: View {
+    let visual: PortVisualLayout
+    let dfuIdx: Int
+    let lang: AppLanguage
+
+    var body: some View {
+        VStack(spacing: 6) {
+            Text(visual.face == .leftSide
+                 ? lang.text("Lato Sinistro Host", "Host Left Side")
+                 : lang.text("Retro Host", "Host Rear Panel"))
+                .font(.caption2.bold())
+                .foregroundStyle(.secondary)
+
+            HStack(spacing: 10) {
+                if visual.hasMagSafeOnLeft {
+                    VStack(spacing: 3) {
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(Color.secondary.opacity(0.35))
+                            .frame(width: 24, height: 10)
+                        Text("MagSafe")
+                            .font(.system(size: 9, weight: .medium))
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                ForEach(1...visual.totalUSBCPortsOnFace, id: \.self) { idx in
+                    let isDFU = (idx == dfuIdx)
+                    VStack(spacing: 3) {
+                        Capsule()
+                            .fill(isDFU ? Color.green : Color.secondary.opacity(0.25))
+                            .frame(width: 28, height: 12)
+                            .overlay(
+                                Capsule()
+                                    .strokeBorder(isDFU ? Color.white : Color.secondary.opacity(0.5), lineWidth: 1.2)
+                            )
+                        Text(isDFU ? "★ DFU" : "USB-C")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundStyle(isDFU ? Color.green : Color.secondary)
+                    }
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color.black.opacity(0.15))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+    }
 }
 
 private struct DetectedTargetsActionCard: View {
@@ -481,42 +730,16 @@ private struct DetectedTargetsActionCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                Label(
-                    lang.text("2. Riparazione Firmware & Sistema (Revive / Restore)", "2. Firmware & OS Repair (Revive / Restore)"),
-                    systemImage: "wrench.and.screwdriver.fill"
-                )
-                .font(.headline)
-
-                Spacer()
-
-                if let ipsw = engine.selectedIPSWURL {
-                    HStack(spacing: 6) {
-                        Image(systemName: "doc.zipper")
-                            .foregroundStyle(.cyan)
-                        Text(ipsw.lastPathComponent)
-                            .font(.caption.monospaced())
-                            .lineLimit(1)
-                        Button(lang.text("Rimuovi", "Clear")) {
-                            engine.selectedIPSWURL = nil
-                        }
-                        .controlSize(.small)
-                    }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
-                    .background(Color.cyan.opacity(0.12))
-                    .clipShape(Capsule())
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    sectionTitle
+                    Spacer()
+                    ipswControls
                 }
-
-                Button {
-                    showIPSWPicker = true
-                } label: {
-                    Label(
-                        lang.text("Scegli File IPSW...", "Select IPSW File..."),
-                        systemImage: "folder.badge.plus"
-                    )
+                VStack(alignment: .leading, spacing: 8) {
+                    sectionTitle
+                    ipswControls
                 }
-                .controlSize(.small)
             }
 
             if let progress = engine.operationProgress {
@@ -535,22 +758,13 @@ private struct DetectedTargetsActionCard: View {
             }
 
             if engine.detectedUSBDevices.isEmpty {
-                HStack(spacing: 16) {
-                    StepPillView(
-                        number: "1",
-                        title: lang.text("Collega il Cavo USB-C", "Connect USB-C Cable"),
-                        detail: lang.text("Porta DFU Host ↔ Porta DFU Target (usa un cavo USB-C dati, NON Thunderbolt 3).", "Host DFU Port ↔ Target DFU Port (use a USB-C data cable, NOT Thunderbolt 3).")
-                    )
-                    StepPillView(
-                        number: "2",
-                        title: lang.text("Premi '1-Click Entra in DFU'", "Click '1-Click Enter DFU'"),
-                        detail: lang.text("Invia automaticamente il segnale VDM sia per Apple Silicon (0x106) sia per Intel T2 (0x105).", "Automatically sends VDM trigger for both Apple Silicon (0x106) and Intel T2 (0x105).")
-                    )
-                    StepPillView(
-                        number: "3",
-                        title: lang.text("Esegui Revive o Restore", "Run Revive or Restore"),
-                        detail: lang.text("Appena il Mac target appare qui sotto, scegli Revive (salva i dati) o Restore (formatta).", "Once the target Mac appears below, choose Revive (keeps data) or Restore (wipes).")
-                    )
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 14) {
+                        stepCards
+                    }
+                    VStack(spacing: 10) {
+                        stepCards
+                    }
                 }
             } else {
                 ForEach(engine.detectedUSBDevices) { dev in
@@ -564,6 +778,65 @@ private struct DetectedTargetsActionCard: View {
             }
         }
         .styledCard()
+    }
+
+    private var sectionTitle: some View {
+        Label(
+            lang.text("2. Dispositivo Target & Riparazione Firmware (Revive / Restore)", "2. Target Device & Firmware Repair (Revive / Restore)"),
+            systemImage: "wrench.and.screwdriver.fill"
+        )
+        .font(.headline)
+    }
+
+    private var ipswControls: some View {
+        HStack(spacing: 8) {
+            if let ipsw = engine.selectedIPSWURL {
+                HStack(spacing: 6) {
+                    Image(systemName: "doc.zipper")
+                        .foregroundStyle(.cyan)
+                    Text(ipsw.lastPathComponent)
+                        .font(.caption.monospaced())
+                        .lineLimit(1)
+                    Button(lang.text("Rimuovi", "Clear")) {
+                        engine.selectedIPSWURL = nil
+                    }
+                    .controlSize(.small)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(Color.cyan.opacity(0.12))
+                .clipShape(Capsule())
+            }
+
+            Button {
+                showIPSWPicker = true
+            } label: {
+                Label(
+                    lang.text("Scegli IPSW Locale...", "Select Local IPSW..."),
+                    systemImage: "folder.badge.plus"
+                )
+            }
+            .controlSize(.small)
+        }
+    }
+
+    @ViewBuilder
+    private var stepCards: some View {
+        StepPillView(
+            number: "1",
+            title: lang.text("Collega il Cavo USB-C", "Connect USB-C Cable"),
+            detail: lang.text("Porta DFU Host ↔ Porta DFU Target (usa un cavo USB-C dati, NON Thunderbolt 3).", "Host DFU Port ↔ Target DFU Port (use a USB-C data cable, NOT Thunderbolt 3).")
+        )
+        StepPillView(
+            number: "2",
+            title: lang.text("Premi '1-Click Entra in DFU'", "Click '1-Click Enter DFU'"),
+            detail: lang.text("Invia automaticamente il segnale VDM sia per Apple Silicon (0x106) sia per Intel T2 (0x105).", "Automatically sends VDM trigger for both Apple Silicon (0x106) and Intel T2 (0x105).")
+        )
+        StepPillView(
+            number: "3",
+            title: lang.text("Esegui Revive o Restore", "Run Revive or Restore"),
+            detail: lang.text("Appena il Mac target appare qui sotto, scegli Revive (salva i dati) o Restore (formatta).", "Once the target Mac appears below, choose Revive (keeps data) or Restore (wipes).")
+        )
     }
 }
 
@@ -583,6 +856,7 @@ private struct StepPillView: View {
                     .background(Circle().fill(Color.accentColor))
                 Text(title)
                     .font(.subheadline.bold())
+                    .fixedSize(horizontal: false, vertical: true)
             }
             Text(detail)
                 .font(.caption)
@@ -605,71 +879,37 @@ private struct TargetDeviceRowCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 12) {
-                ZStack {
-                    Circle()
-                        .fill(device.state.isRestorableDFU ? Color.green.opacity(0.18) : Color.orange.opacity(0.18))
-                        .frame(width: 44, height: 44)
-                    Image(systemName: device.isIntelT2 ? "cpu.fill" : "laptopcomputer")
-                        .font(.title2)
-                        .foregroundStyle(device.state.isRestorableDFU ? Color.green : Color.orange)
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    deviceSummaryHeader
+                    Spacer()
+                    if device.state.isRestorableDFU {
+                        reviveRestoreButtons
+                    }
                 }
-
-                VStack(alignment: .leading, spacing: 3) {
-                    HStack(spacing: 8) {
-                        Text(device.displayTitle(in: lang))
-                            .font(.headline)
-                        Text(device.state.label(in: lang))
-                            .font(.caption.bold())
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 2)
-                            .background(device.state.isRestorableDFU ? Color.green.opacity(0.22) : Color.orange.opacity(0.22))
-                            .foregroundStyle(device.state.isRestorableDFU ? Color.green : Color.orange)
-                            .clipShape(Capsule())
+                VStack(alignment: .leading, spacing: 10) {
+                    deviceSummaryHeader
+                    if device.state.isRestorableDFU {
+                        reviveRestoreButtons
                     }
-                    Text("USB \(device.vidPidHex) (rev \(device.bcdVersionString)) · Loc \(device.locationHex)" +
-                         (device.hostPortRID != nil ? " · Host RID \(device.hostPortRID!) (\(device.hostPortLocation ?? ""))" : ""))
-                        .font(.caption.monospaced())
-                        .foregroundStyle(.secondary)
-                }
-
-                Spacer()
-
-                if device.state.isRestorableDFU {
-                    Button {
-                        Task {
-                            await engine.executeCfgutilAction(mode: "revive", device: device)
-                        }
-                    } label: {
-                        Label(lang.text("Revive (Salva Dati)", "Revive (Keep Data)"), systemImage: "heart.text.square.fill")
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.green)
-                    .disabled(engine.isBusy || engine.cfgutilPath == nil)
-
-                    Button(role: .destructive) {
-                        onConfirmRestore()
-                    } label: {
-                        Label(lang.text("Restore (Formatta)", "Restore (Erase)"), systemImage: "trash.fill")
-                    }
-                    .buttonStyle(.bordered)
-                    .disabled(engine.isBusy || engine.cfgutilPath == nil)
                 }
             }
 
             // Identity chips
-            HStack(spacing: 10) {
-                if let spec = device.resolvedSpec {
-                    InfoBadgePill(text: "\(spec.modelIdentifier) → DFU: \(spec.dfuTargetIdentifier) (\(spec.boardConfig))", icon: "tag.fill")
-                }
-                if let cpid = device.cpid, let bdid = device.bdid {
-                    InfoBadgePill(text: String(format: "CPID 0x%04X · BDID 0x%02X", cpid, bdid), icon: "memorychip")
-                }
-                if let ecid = device.ecidHex {
-                    InfoBadgePill(text: "ECID \(ecid)", icon: "number")
-                }
-                if let srtg = device.srtg {
-                    InfoBadgePill(text: srtg, icon: "lock.shield")
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    if let spec = device.resolvedSpec {
+                        InfoBadgePill(text: "\(spec.modelIdentifier) → DFU: \(spec.dfuTargetIdentifier) (\(spec.boardConfig))", icon: "tag.fill")
+                    }
+                    if let cpid = device.cpid, let bdid = device.bdid {
+                        InfoBadgePill(text: String(format: "CPID 0x%04X · BDID 0x%02X", cpid, bdid), icon: "memorychip")
+                    }
+                    if let ecid = device.ecidHex {
+                        InfoBadgePill(text: "ECID \(ecid)", icon: "number")
+                    }
+                    if let srtg = device.srtg {
+                        InfoBadgePill(text: srtg, icon: "lock.shield")
+                    }
                 }
             }
 
@@ -720,6 +960,62 @@ private struct TargetDeviceRowCard: View {
         .background(AppPalette.elevatedBackground(for: colorScheme))
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
+
+    private var deviceSummaryHeader: some View {
+        HStack(spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(device.state.isRestorableDFU ? Color.green.opacity(0.18) : Color.orange.opacity(0.18))
+                    .frame(width: 44, height: 44)
+                Image(systemName: device.isIntelT2 ? "cpu.fill" : "laptopcomputer")
+                    .font(.title2)
+                    .foregroundStyle(device.state.isRestorableDFU ? Color.green : Color.orange)
+            }
+
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: 8) {
+                    Text(device.displayTitle(in: lang))
+                        .font(.headline)
+                    Text(device.state.label(in: lang))
+                        .font(.caption.bold())
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 2)
+                        .background(device.state.isRestorableDFU ? Color.green.opacity(0.22) : Color.orange.opacity(0.22))
+                        .foregroundStyle(device.state.isRestorableDFU ? Color.green : Color.orange)
+                        .clipShape(Capsule())
+                }
+                Text("USB \(device.vidPidHex) (rev \(device.bcdVersionString)) · Loc \(device.locationHex)" +
+                     (device.hostPortRID != nil ? " · Host RID \(device.hostPortRID!) (\(device.hostPortLocation ?? ""))" : ""))
+                    .font(.caption.monospaced())
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private var reviveRestoreButtons: some View {
+        HStack(spacing: 8) {
+            Button {
+                Task {
+                    await engine.executeCfgutilAction(mode: "revive", device: device)
+                }
+            } label: {
+                Label(lang.text("Revive (Salva Dati)", "Revive (Keep Data)"), systemImage: "heart.text.square.fill")
+                    .fixedSize()
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.green)
+            .disabled(engine.isBusy || engine.cfgutilPath == nil)
+
+            Button(role: .destructive) {
+                onConfirmRestore()
+            } label: {
+                Label(lang.text("Restore (Formatta)", "Restore (Erase)"), systemImage: "trash.fill")
+                    .fixedSize()
+            }
+            .buttonStyle(.bordered)
+            .disabled(engine.isBusy || engine.cfgutilPath == nil)
+        }
+    }
 }
 
 private struct InfoBadgePill: View {
@@ -750,81 +1046,34 @@ private struct AdvancedVDMControlsCard: View {
         DisclosureGroup(isExpanded: $isExpanded) {
             VStack(alignment: .leading, spacing: 12) {
                 Divider()
-                HStack(spacing: 12) {
-                    Picker(lang.text("Porta Host AppleHPM (RID):", "Host AppleHPM Port (RID):"), selection: $engine.selectedHostRID) {
-                        ForEach(engine.hostPorts) { port in
-                            Text("RID \(port.rid) — \(port.locationName) [USB \(port.locationBaseHex)] \(port.isDFUCapable ? "★ DFU/VDM" : "")")
-                                .tag(port.rid)
-                        }
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 12) {
+                        portPicker
+                        probeButton
                     }
-                    .frame(maxWidth: 440)
-
-                    Button {
-                        Task {
-                            await engine.executeVDMCommand(
-                                "probe",
-                                titleIT: "Probe AppleHPM RID \(engine.selectedHostRID)",
-                                titleEN: "Probing AppleHPM RID \(engine.selectedHostRID)"
-                            )
-                        }
-                    } label: {
-                        Label(lang.text("Test Porta (Probe DBMa)", "Test Port (Probe DBMa)"), systemImage: "waveform.badge.magnifyingglass")
+                    VStack(alignment: .leading, spacing: 8) {
+                        portPicker
+                        probeButton
                     }
-                    .disabled(engine.isBusy)
                 }
 
-                HStack(spacing: 10) {
-                    Button {
-                        Task {
-                            await engine.executeVDMCommand(
-                                "dfu-silicon",
-                                titleIT: "Forza DFU Apple Silicon (0x106)",
-                                titleEN: "Force Apple Silicon DFU (0x106)"
-                            )
-                        }
-                    } label: {
-                        Label(lang.text("Forza VDM Silicon (0x106)", "Force Silicon VDM (0x106)"), systemImage: "m.square.fill")
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 10) {
+                        forceSiliconButton
+                        forceT2Button
+                        serialConsoleButton
+                        debugUSBButton
                     }
-                    .disabled(engine.isBusy)
-
-                    Button {
-                        Task {
-                            await engine.executeVDMCommand(
-                                "dfu-t2",
-                                titleIT: "Forza DFU Intel T2 (0x105 / 0x80020000)",
-                                titleEN: "Force Intel T2 DFU (0x105 / 0x80020000)"
-                            )
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 10) {
+                            forceSiliconButton
+                            forceT2Button
                         }
-                    } label: {
-                        Label(lang.text("Forza VDM Intel T2 (0x105)", "Force Intel T2 VDM (0x105)"), systemImage: "shield.lefthalf.filled")
-                    }
-                    .disabled(engine.isBusy)
-
-                    Button {
-                        Task {
-                            await engine.executeVDMCommand(
-                                "serial",
-                                titleIT: "Attiva Console Seriale UART su SBU",
-                                titleEN: "Enable SBU UART Serial Console"
-                            )
+                        HStack(spacing: 10) {
+                            serialConsoleButton
+                            debugUSBButton
                         }
-                    } label: {
-                        Label(lang.text("Console Seriale SBU (/dev/cu.debug-console)", "SBU Serial Console (/dev/cu.debug-console)"), systemImage: "terminal.fill")
                     }
-                    .disabled(engine.isBusy)
-
-                    Button {
-                        Task {
-                            await engine.executeVDMCommand(
-                                "debugusb",
-                                titleIT: "Attiva Debug USB (KIS 05ac:1881)",
-                                titleEN: "Enable Debug USB (KIS 05ac:1881)"
-                            )
-                        }
-                    } label: {
-                        Label("Debug USB (KIS)", systemImage: "ant.circle.fill")
-                    }
-                    .disabled(engine.isBusy)
                 }
             }
             .padding(.top, 8)
@@ -842,6 +1091,96 @@ private struct AdvancedVDMControlsCard: View {
             }
         }
         .styledCard()
+    }
+
+    private var portPicker: some View {
+        Picker(lang.text("Porta Host AppleHPM (RID):", "Host AppleHPM Port (RID):"), selection: $engine.selectedHostRID) {
+            ForEach(engine.hostPorts) { port in
+                Text("RID \(port.rid) — \(port.locationName) [USB \(port.locationBaseHex)] \(port.isDFUCapable ? "★ DFU/VDM" : "")")
+                    .tag(port.rid)
+            }
+        }
+        .frame(maxWidth: 430)
+    }
+
+    private var probeButton: some View {
+        Button {
+            Task {
+                await engine.executeVDMCommand(
+                    "probe",
+                    titleIT: "Probe AppleHPM RID \(engine.selectedHostRID)",
+                    titleEN: "Probing AppleHPM RID \(engine.selectedHostRID)"
+                )
+            }
+        } label: {
+            Label(lang.text("Test Porta (Probe DBMa)", "Test Port (Probe DBMa)"), systemImage: "waveform.badge.magnifyingglass")
+                .fixedSize()
+        }
+        .disabled(engine.isBusy)
+    }
+
+    private var forceSiliconButton: some View {
+        Button {
+            Task {
+                await engine.executeVDMCommand(
+                    "dfu-silicon",
+                    titleIT: "Forza DFU Apple Silicon (0x106)",
+                    titleEN: "Force Apple Silicon DFU (0x106)"
+                )
+            }
+        } label: {
+            Label(lang.text("Forza VDM Silicon (0x106)", "Force Silicon VDM (0x106)"), systemImage: "m.square.fill")
+                .fixedSize()
+        }
+        .disabled(engine.isBusy)
+    }
+
+    private var forceT2Button: some View {
+        Button {
+            Task {
+                await engine.executeVDMCommand(
+                    "dfu-t2",
+                    titleIT: "Forza DFU Intel T2 (0x105 / 0x80020000)",
+                    titleEN: "Force Intel T2 DFU (0x105 / 0x80020000)"
+                )
+            }
+        } label: {
+            Label(lang.text("Forza VDM Intel T2 (0x105)", "Force Intel T2 VDM (0x105)"), systemImage: "shield.lefthalf.filled")
+                .fixedSize()
+        }
+        .disabled(engine.isBusy)
+    }
+
+    private var serialConsoleButton: some View {
+        Button {
+            Task {
+                await engine.executeVDMCommand(
+                    "serial",
+                    titleIT: "Attiva Console Seriale UART su SBU",
+                    titleEN: "Enable SBU UART Serial Console"
+                )
+            }
+        } label: {
+            Label(lang.text("Console Seriale SBU", "SBU Serial Console"), systemImage: "terminal.fill")
+                .fixedSize()
+        }
+        .disabled(engine.isBusy)
+    }
+
+    private var debugUSBButton: some View {
+        Button {
+            Task {
+                await engine.executeVDMCommand(
+                    "debugusb",
+                    titleIT: "Attiva Debug USB (KIS 05ac:1881)",
+                    titleEN: "Enable Debug USB (KIS 05ac:1881)"
+                )
+            }
+        } label: {
+            Label("Debug USB (KIS)", systemImage: "ant.circle.fill")
+                .fixedSize()
+        }
+        .disabled(engine.isBusy)
     }
 }
 
@@ -891,7 +1230,7 @@ private struct LiveConsoleCard: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(height: 145)
+            .frame(height: 140)
             .padding(10)
             .background(Color.black.opacity(0.12))
             .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -1078,7 +1417,7 @@ struct HardwareDiagnosticsView: View {
                 }
                 .styledCard()
             }
-            .padding(22)
+            .padding(20)
         }
         .navigationTitle(prefs.tr("Diagnostica USB, Cavo & Target Disk Mode", "USB, Cable & Target Disk Mode Diagnostics"))
     }
@@ -1137,7 +1476,7 @@ struct CompatibilityExplorerView: View {
                         .tag(spec)
                 }
             }
-            .frame(minWidth: 360, idealWidth: 410)
+            .frame(minWidth: 340, idealWidth: 400)
 
             Group {
                 if let spec = selectedSpec {
@@ -1149,7 +1488,7 @@ struct CompatibilityExplorerView: View {
                     )
                 }
             }
-            .frame(minWidth: 440)
+            .frame(minWidth: 420)
         }
         .searchable(
             text: $searchText,
@@ -1200,26 +1539,16 @@ private struct CompatibilityDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(spec.marketingName)
-                            .font(.title2.bold())
-                        Text(spec.category.title(in: lang))
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .top) {
+                        titleBlock
+                        Spacer()
+                        statusBadge
                     }
-                    Spacer()
-                    Label(
-                        spec.category.supportsDFU
-                            ? lang.text("Compatibile DFU & VDM", "DFU & VDM Compatible")
-                            : lang.text("NO DFU (Solo Target Disk Mode)", "NO DFU (Target Disk Mode Only)"),
-                        systemImage: spec.category.supportsDFU ? "checkmark.seal.fill" : "exclamationmark.octagon.fill"
-                    )
-                    .font(.callout.bold())
-                    .padding(10)
-                    .background((spec.category.supportsDFU ? Color.green : Color.orange).opacity(0.18))
-                    .foregroundStyle(spec.category.supportsDFU ? Color.green : Color.orange)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    VStack(alignment: .leading, spacing: 8) {
+                        titleBlock
+                        statusBadge
+                    }
                 }
 
                 // Visual Interactive USB-C Port Diagram!
@@ -1281,6 +1610,30 @@ private struct CompatibilityDetailView: View {
             .padding(20)
         }
     }
+
+    private var titleBlock: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(spec.marketingName)
+                .font(.title2.bold())
+            Text(spec.category.title(in: lang))
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var statusBadge: some View {
+        Label(
+            spec.category.supportsDFU
+                ? lang.text("Compatibile DFU & VDM", "DFU & VDM Compatible")
+                : lang.text("NO DFU (Solo Target Disk Mode)", "NO DFU (Target Disk Mode Only)"),
+            systemImage: spec.category.supportsDFU ? "checkmark.seal.fill" : "exclamationmark.octagon.fill"
+        )
+        .font(.callout.bold())
+        .padding(10)
+        .background((spec.category.supportsDFU ? Color.green : Color.orange).opacity(0.18))
+        .foregroundStyle(spec.category.supportsDFU ? Color.green : Color.orange)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
 }
 
 private struct VisualPortDiagramCard: View {
@@ -1305,6 +1658,12 @@ private struct VisualPortDiagramCard: View {
                         .foregroundStyle(.orange)
                         .clipShape(Capsule())
                 }
+                Link(destination: DiagnosticsEngine.appleDFUPortSupportURL(for: lang)) {
+                    Label("HT120694", systemImage: "arrow.up.right.square")
+                        .font(.caption)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.mini)
             }
 
             if spec.portVisual.face != .none, let dfuIdx = spec.portVisual.dfuPortIndexOneBased {
@@ -1313,58 +1672,60 @@ private struct VisualPortDiagramCard: View {
                         .font(.caption.bold())
                         .foregroundStyle(.secondary)
 
-                    HStack(spacing: 16) {
-                        if spec.portVisual.face == .leftSide {
-                            Text(lang.text("◀ Cerniera / Schermo", "◀ Display Hinge"))
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                        } else if spec.portVisual.face == .backPanel {
-                            Text(lang.text("◀ Lato Sinistro", "◀ Left Edge"))
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                        }
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 16) {
+                            if spec.portVisual.face == .leftSide {
+                                Text(lang.text("◀ Cerniera / Schermo", "◀ Display Hinge"))
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            } else if spec.portVisual.face == .backPanel {
+                                Text(lang.text("◀ Lato Sinistro", "◀ Left Edge"))
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
 
-                        if spec.portVisual.hasMagSafeOnLeft {
-                            VStack(spacing: 4) {
-                                RoundedRectangle(cornerRadius: 4)
-                                    .fill(Color.secondary.opacity(0.35))
-                                    .frame(width: 28, height: 12)
-                                Text("MagSafe 3")
+                            if spec.portVisual.hasMagSafeOnLeft {
+                                VStack(spacing: 4) {
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .fill(Color.secondary.opacity(0.35))
+                                        .frame(width: 28, height: 12)
+                                    Text("MagSafe 3")
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+
+                            ForEach(1...spec.portVisual.totalUSBCPortsOnFace, id: \.self) { idx in
+                                let isDFU = (idx == dfuIdx)
+                                VStack(spacing: 4) {
+                                    ZStack {
+                                        Capsule()
+                                            .fill(isDFU ? Color.green : Color.secondary.opacity(0.25))
+                                            .frame(width: 34, height: 14)
+                                            .overlay(
+                                                Capsule()
+                                                    .strokeBorder(isDFU ? Color.white : Color.secondary.opacity(0.5), lineWidth: 1.5)
+                                            )
+                                    }
+                                    Text(isDFU ? "★ DFU (#\(idx))" : "USB-C #\(idx)")
+                                        .font(.caption2.bold())
+                                        .foregroundStyle(isDFU ? Color.green : Color.secondary)
+                                }
+                            }
+
+                            if spec.portVisual.face == .leftSide {
+                                Text(lang.text("Trackpad / Fronte ▶", "Trackpad / Front ▶"))
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            } else if spec.portVisual.face == .backPanel {
+                                Text(lang.text("Lato Destro ▶", "Right Edge ▶"))
                                     .font(.caption2)
                                     .foregroundStyle(.secondary)
                             }
                         }
-
-                        ForEach(1...spec.portVisual.totalUSBCPortsOnFace, id: \.self) { idx in
-                            let isDFU = (idx == dfuIdx)
-                            VStack(spacing: 4) {
-                                ZStack {
-                                    Capsule()
-                                        .fill(isDFU ? Color.green : Color.secondary.opacity(0.25))
-                                        .frame(width: 34, height: 14)
-                                        .overlay(
-                                            Capsule()
-                                                .strokeBorder(isDFU ? Color.white : Color.secondary.opacity(0.5), lineWidth: 1.5)
-                                        )
-                                }
-                                Text(isDFU ? "★ DFU (#\(idx))" : "USB-C #\(idx)")
-                                    .font(.caption2.bold())
-                                    .foregroundStyle(isDFU ? Color.green : Color.secondary)
-                            }
-                        }
-
-                        if spec.portVisual.face == .leftSide {
-                            Text(lang.text("Trackpad / Fronte ▶", "Trackpad / Front ▶"))
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                        } else if spec.portVisual.face == .backPanel {
-                            Text(lang.text("Lato Destro ▶", "Right Edge ▶"))
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                        }
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 16)
                     }
-                    .padding(.vertical, 10)
-                    .padding(.horizontal, 16)
                     .background(Color.black.opacity(0.12))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
@@ -1379,57 +1740,51 @@ private struct VisualPortDiagramCard: View {
 
 // MARK: - 4. Official Port & Cable Guide View
 struct PortAndCableGuideView: View {
+    let engine: DiagnosticsEngine
     let prefs: AppPreferences
     private var lang: AppLanguage { prefs.language }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
+                // Host Mac DFU Port Card right at the top of the guide too!
+                HostMacDFUPortCard(engine: engine, lang: lang)
+
                 VStack(alignment: .leading, spacing: 12) {
                     Label(
-                        lang.text("1. Quale Cavo Usare? (USB-C Dati vs SuperSpeed vs Thunderbolt 3)", "1. Which Cable Should You Use? (USB-C Data vs SuperSpeed vs Thunderbolt 3)"),
+                        lang.text("Quale Cavo Usare? (USB-C Dati vs SuperSpeed vs Thunderbolt 3)", "Which Cable Should You Use? (USB-C Data vs SuperSpeed vs Thunderbolt 3)"),
                         systemImage: "cable.connector"
                     )
                     .font(.headline)
 
-                    HStack(alignment: .top, spacing: 14) {
-                        CableGuideBox(
-                            badge: lang.text("✅ CONSIGLIATO PER DFU", "✅ RECOMMENDED FOR DFU"),
-                            color: .green,
-                            title: lang.text("Cavo USB-C Dati & Ricarica (USB 2.0 / 3.x)", "USB-C Data & Charge Cable (USB 2.0 / 3.x)"),
-                            detail: lang.text(
-                                "Il cavo Apple USB-C Charge Cable bianco o qualsiasi cavo USB-C dati trasporta il canale CC (per i pacchetti VDM 1-Click DFU) e le linee D+/D- per il flash dell'IPSW con cfgutil / Finder. Collegamento diretto senza hub!",
-                                "Apple's white USB-C Charge Cable or any USB-C data cable carries the CC wire (for 1-Click DFU VDMs) and USB D+/D- data lines for IPSW flashing via cfgutil / Finder. Direct connection with no hubs!"
-                            )
-                        )
-                        CableGuideBox(
-                            badge: lang.text("⚡ PER SERIALE SBU & TDM", "⚡ FOR SBU SERIAL & TDM"),
-                            color: .cyan,
-                            title: lang.text("Cavo USB-C 3.1/3.2 SuperSpeed o USB4 / TB4", "USB-C 3.1/3.2 SuperSpeed or USB4 / TB4 Cable"),
-                            detail: lang.text(
-                                "La console seriale UART VDM (/dev/cu.debug-console) viaggia sui pin SBU1/SBU2, assenti nei cavi USB 2.0 di sola ricarica. Usa un cavo USB 3.x SuperSpeed o USB4/TB4 completo per la seriale UART o il Target Disk Mode.",
-                                "The VDM UART serial console (/dev/cu.debug-console) uses the SBU1/SBU2 wires, which USB 2.0 charge cables lack. Use a full-featured USB 3.x SuperSpeed or USB4/TB4 cable for UART serial or Target Disk Mode."
-                            )
-                        )
-                        CableGuideBox(
-                            badge: lang.text("❌ EVITARE PER DFU", "❌ AVOID FOR DFU"),
-                            color: .orange,
-                            title: lang.text("Cavi Thunderbolt 3 Attivi & Hub USB", "Active Thunderbolt 3 Cables & USB Hubs"),
-                            detail: lang.text(
-                                "Apple Support HT108900 / HT120694 specifica di NON usare cavi Thunderbolt 3 per il DFU (spesso causano errore Billboard 05ac:7304). Inoltre gli hub USB bloccano i pacchetti VDM sul pin CC.",
-                                "Apple Support HT108900 / HT120694 explicitly warns NOT to use Thunderbolt 3 cables for DFU (often triggering Billboard error 05ac:7304). Also, USB hubs block VDM packets on the CC line."
-                            )
-                        )
+                    ViewThatFits(in: .horizontal) {
+                        HStack(alignment: .top, spacing: 14) {
+                            cableBoxes
+                        }
+                        VStack(spacing: 10) {
+                            cableBoxes
+                        }
                     }
                 }
                 .styledCard()
 
                 VStack(alignment: .leading, spacing: 10) {
-                    Label(
-                        lang.text("2. Tabella Riepilogativa Posizione Porta DFU (Apple Support HT120694)", "2. DFU Port Location Summary Table (Apple Support HT120694)"),
-                        systemImage: "tablecells"
-                    )
-                    .font(.headline)
+                    HStack {
+                        Label(
+                            lang.text("Tabella Ufficiale Posizione Porta DFU (Apple Support HT120694)", "Official DFU Port Location Table (Apple Support HT120694)"),
+                            systemImage: "tablecells"
+                        )
+                        .font(.headline)
+                        Spacer()
+                        Link(destination: DiagnosticsEngine.appleDFUPortSupportURL(for: lang)) {
+                            Label(
+                                lang.text("Apri support.apple.com/120694", "Open support.apple.com/120694"),
+                                systemImage: "arrow.up.right.square.fill"
+                            )
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.small)
+                    }
 
                     PortRuleRow(
                         title: lang.text("MacBook Pro 14\" & 16\" (M1/M2/M3/M4/M5 Pro & Max, e 14\" M3 base)", "14\" & 16\" MacBook Pro (M1/M2/M3/M4/M5 Pro & Max, plus 14\" base M3)"),
@@ -1474,9 +1829,40 @@ struct PortAndCableGuideView: View {
                 }
                 .styledCard()
             }
-            .padding(22)
+            .padding(20)
         }
         .navigationTitle(prefs.tr("Guida Ufficiale Porte DFU & Cavi (Apple HT120694)", "Official DFU Port & Cable Guide (Apple HT120694)"))
+    }
+
+    @ViewBuilder
+    private var cableBoxes: some View {
+        CableGuideBox(
+            badge: lang.text("✅ CONSIGLIATO PER DFU", "✅ RECOMMENDED FOR DFU"),
+            color: .green,
+            title: lang.text("Cavo USB-C Dati & Ricarica (USB 2.0 / 3.x)", "USB-C Data & Charge Cable (USB 2.0 / 3.x)"),
+            detail: lang.text(
+                "Il cavo Apple USB-C Charge Cable bianco o qualsiasi cavo USB-C dati trasporta il canale CC (per i pacchetti VDM 1-Click DFU) e le linee D+/D- per il flash dell'IPSW con cfgutil / Finder. Collegamento diretto senza hub!",
+                "Apple's white USB-C Charge Cable or any USB-C data cable carries the CC wire (for 1-Click DFU VDMs) and USB D+/D- data lines for IPSW flashing via cfgutil / Finder. Direct connection with no hubs!"
+            )
+        )
+        CableGuideBox(
+            badge: lang.text("⚡ PER SERIALE SBU & TDM", "⚡ FOR SBU SERIAL & TDM"),
+            color: .cyan,
+            title: lang.text("Cavo USB-C 3.1/3.2 SuperSpeed o USB4 / TB4", "USB-C 3.1/3.2 SuperSpeed or USB4 / TB4 Cable"),
+            detail: lang.text(
+                "La console seriale UART VDM (/dev/cu.debug-console) viaggia sui pin SBU1/SBU2, assenti nei cavi USB 2.0 di sola ricarica. Usa un cavo USB 3.x SuperSpeed o USB4/TB4 completo per la seriale UART o il Target Disk Mode.",
+                "The VDM UART serial console (/dev/cu.debug-console) uses the SBU1/SBU2 wires, which USB 2.0 charge cables lack. Use a full-featured USB 3.x SuperSpeed or USB4/TB4 cable for UART serial or Target Disk Mode."
+            )
+        )
+        CableGuideBox(
+            badge: lang.text("❌ EVITARE PER DFU", "❌ AVOID FOR DFU"),
+            color: .orange,
+            title: lang.text("Cavi Thunderbolt 3 Attivi & Hub USB", "Active Thunderbolt 3 Cables & USB Hubs"),
+            detail: lang.text(
+                "Apple Support HT108900 / HT120694 specifica di NON usare cavi Thunderbolt 3 per il DFU (spesso causano errore Billboard 05ac:7304). Inoltre gli hub USB bloccano i pacchetti VDM sul pin CC.",
+                "Apple Support HT108900 / HT120694 explicitly warns NOT to use Thunderbolt 3 cables for DFU (often triggering Billboard error 05ac:7304). Also, USB hubs block VDM packets on the CC line."
+            )
+        )
     }
 }
 

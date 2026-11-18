@@ -451,6 +451,30 @@ enum CompatibilityCatalog {
             visual: .init(face: .leftSide, totalUSBCPortsOnFace: 2, dfuPortIndexOneBased: 1, hasMagSafeOnLeft: true, isExceptionHT120694: false)
         ),
         specSilicon(
+            id: "Mac17,13", family: "MacBook Pro", name: "MacBook Pro (14-inch PROLED XDR, M5 Pro)", board: "K114sAP", cpid: 0x6050, bdid: 0x14, chip: "Apple M5 Pro",
+            portIT: "Lato sinistro: porta USB-C più a sinistra (accanto a MagSafe 3).",
+            portEN: "Left side: leftmost USB-C port (next to MagSafe 3).",
+            visual: .init(face: .leftSide, totalUSBCPortsOnFace: 2, dfuPortIndexOneBased: 1, hasMagSafeOnLeft: true, isExceptionHT120694: false)
+        ),
+        specSilicon(
+            id: "Mac17,11", family: "MacBook Pro", name: "MacBook Pro (14-inch PROLED XDR, M5 Max)", board: "K114cAP", cpid: 0x6050, bdid: 0x04, chip: "Apple M5 Max",
+            portIT: "Lato sinistro: porta USB-C più a sinistra (accanto a MagSafe 3).",
+            portEN: "Left side: leftmost USB-C port (next to MagSafe 3).",
+            visual: .init(face: .leftSide, totalUSBCPortsOnFace: 2, dfuPortIndexOneBased: 1, hasMagSafeOnLeft: true, isExceptionHT120694: false)
+        ),
+        specSilicon(
+            id: "Mac17,12", family: "MacBook Pro", name: "MacBook Pro (16-inch PROLED XDR, M5 Pro)", board: "K116sAP", cpid: 0x6050, bdid: 0x16, chip: "Apple M5 Pro",
+            portIT: "Lato sinistro: porta USB-C più a sinistra (accanto a MagSafe 3).",
+            portEN: "Left side: leftmost USB-C port (next to MagSafe 3).",
+            visual: .init(face: .leftSide, totalUSBCPortsOnFace: 2, dfuPortIndexOneBased: 1, hasMagSafeOnLeft: true, isExceptionHT120694: false)
+        ),
+        specSilicon(
+            id: "Mac17,10", family: "MacBook Pro", name: "MacBook Pro (16-inch PROLED XDR, M5 Max)", board: "K116cAP", cpid: 0x6050, bdid: 0x06, chip: "Apple M5 Max",
+            portIT: "Lato sinistro: porta USB-C più a sinistra (accanto a MagSafe 3).",
+            portEN: "Left side: leftmost USB-C port (next to MagSafe 3).",
+            visual: .init(face: .leftSide, totalUSBCPortsOnFace: 2, dfuPortIndexOneBased: 1, hasMagSafeOnLeft: true, isExceptionHT120694: false)
+        ),
+        specSilicon(
             id: "Mac17,3", family: "MacBook Air", name: "MacBook Air (13-inch, M5)", board: "J813AP", cpid: 0x8142, bdid: 0x24, chip: "Apple M5",
             portIT: "ECCEZIONE HT120694 (2025+)! Lato sinistro: porta USB-C più a DESTRA (più vicina al trackpad/fronte).",
             portEN: "HT120694 EXCEPTION (2025+)! Left side: RIGHTMOST USB-C port (closest to trackpad/front).",
@@ -780,6 +804,14 @@ enum CompatibilityCatalog {
         return allSpecs.first {
             $0.modelIdentifier.caseInsensitiveCompare(trimmed) == .orderedSame ||
             $0.dfuTargetIdentifier.caseInsensitiveCompare(trimmed) == .orderedSame
+        }
+    }
+
+    static func lookupByBoardConfig(_ boardConfig: String) -> CompatibleMacSpec? {
+        let trimmed = boardConfig.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        return allSpecs.first {
+            $0.boardConfig.caseInsensitiveCompare(trimmed) == .orderedSame
         }
     }
 

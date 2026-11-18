@@ -13,7 +13,12 @@
   <a href="#-italiano-documentazione-completa">🇮🇹 Italiano</a> •
   <a href="#-english-full-documentation">🇬🇧 English</a> •
   <a href="#-matrice-di-compatibilità-reale--real-hardware-compatibility-matrix">💻 Hardware Compatibility</a> •
-  <a href="#-mappa-porte-dfu-apple-ht120694--dfu-port-map">🔌 DFU Port Map (HT120694)</a>
+  <a href="#-mappa-porte-dfu-apple-ht120694--dfu-port-map">🔌 DFU Port Map (HT120694)</a> •
+  <a href="https://github.com/iCosiSenpai/MacDFUDiagnostics/releases/latest">📦 Download Notarized DMG</a>
+</p>
+
+<p align="center">
+  <img src="docs/images/dmg-preview.png" width="660" alt="Mac DFU Studio DMG Installer" />
 </p>
 
 ---
@@ -45,9 +50,11 @@
      - **Mac Apple Silicon**: verifica lo spazio libero sull'Host (~55 GB per decomprimere l'immagine) e utilizza un file `UniversalMac_..._Restore.ipsw` locale o scaricato dai server Apple.
      - **Mac Intel T2 (`iBridge2,1`–`iBridge2,22`)**: in DFU il target è il coprocessore **Apple T2 (`CPID 0x8012`)**, non la CPU Intel. L'app esegue il Revive/Restore di **`bridgeOS`** (~500 MB scaricati automaticamente da `cfgutil` senza bisogno di un IPSW UniversalMac) e guida l'utente al successivo avvio in **Internet Recovery (`Option-Command-R`)** nel caso di Restore completo.
 
-4. **🎨 Interfaccia Moderna Bilingue (🇮🇹 IT / 🇬🇧 EN) con Tema Chiaro/Scuro & Mappa Visiva Porte**
+4. **🎨 Interfaccia Moderna Bilingue (🇮🇹 IT / 🇬🇧 EN) con Tema Chiaro/Scuro, Layout Responsivo & Mappa Porta DFU dell'Host**
    - Switch istantaneo tra **Italiano** e **Inglese** e tra tema **Sistema / Chiaro / Scuro** direttamente dalla barra degli strumenti.
-   - **Diagramma Visivo Interattivo delle Porte USB-C** per ogni singolo modello di Mac, con evidenziazione grafica della porta DFU e badge di avviso per le eccezioni ufficiali Apple `HT120694`.
+   - **Rilevamento Automatico della Porta DFU del Mac Host**: legge la scheda logica del Mac Host (`IOPlatformExpertDevice`, es. `J813AP` $\rightarrow$ *MacBook Air 13" M5*) e disegna direttamente in dashboard la **mappa visiva della porta DFU del Mac Host**, accompagnata dai pulsanti rapidi per aprire le pagine ufficiali Apple Support **[HT120694](https://support.apple.com/it-it/120694)** e **[HT108900](https://support.apple.com/it-it/108900)**.
+   - **Layout Responsivo (`ViewThatFits`)**: si adatta automaticamente a qualsiasi dimensione della finestra senza mai troncare i pulsanti con `...`.
+   - **Diagramma Visivo Interattivo delle Porte USB-C** per ogni singolo modello di Mac target, con evidenziazione grafica della porta DFU e badge di avviso per le eccezioni ufficiali Apple `HT120694`.
 
 ---
 

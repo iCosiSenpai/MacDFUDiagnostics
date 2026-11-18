@@ -189,11 +189,20 @@ final class DiagnosticsEngine {
     // Host State
     private(set) var hostPlatformName: String = "Unknown"
     private(set) var hostUnlockKeyHex: String = "0x00000000"
+    private(set) var hostMacSpec: CompatibleMacSpec?
     private(set) var isAppleSiliconHost: Bool = false
     private(set) var hostFreeSpaceBytes: Int64 = 0
     private(set) var cfgutilPath: String?
     private(set) var vdmHelperPath: String?
     private(set) var macvdmtoolPath: String?
+
+    static func appleDFUPortSupportURL(for lang: AppLanguage) -> URL {
+        URL(string: lang == .it ? "https://support.apple.com/it-it/120694" : "https://support.apple.com/en-us/120694")!
+    }
+
+    static func appleReviveRestoreSupportURL(for lang: AppLanguage) -> URL {
+        URL(string: lang == .it ? "https://support.apple.com/it-it/108900" : "https://support.apple.com/en-us/108900")!
+    }
 
     // Live Hardware State
     private(set) var hostPorts: [HostPortStatus] = []
@@ -276,6 +285,7 @@ final class DiagnosticsEngine {
             let end = nameBuf.firstIndex(of: 0) ?? nameBuf.count
             hostPlatformName = String(decoding: nameBuf[..<end], as: UTF8.self)
             hostUnlockKeyHex = String(format: "0x%08X", key)
+            hostMacSpec = CompatibilityCatalog.lookupByBoardConfig(hostPlatformName)
         }
 
         if let vals = try? URL.temporaryDirectory.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey, .volumeAvailableCapacityKey]) {
