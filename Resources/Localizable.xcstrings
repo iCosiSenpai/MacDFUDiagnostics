@@ -1,0 +1,2856 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%@ couldn't be ejected. Close the files that are in use and try again." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile espellere %@. Chiudi i file in uso e riprova."
+          }
+        }
+      }
+    },
+    "%@ ejected. It is safe to disconnect." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ espulso. Puoi scollegare il cavo."
+          }
+        }
+      }
+    },
+    "%@ has problems." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ presenta problemi."
+          }
+        }
+      }
+    },
+    "%@ is ready in DFU." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ è pronto in DFU."
+          }
+        }
+      }
+    },
+    "%@ passed its check." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ha superato il controllo."
+          }
+        }
+      }
+    },
+    "A Mac is being revived or restored." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "È in corso la riattivazione o il ripristino di un Mac."
+          }
+        }
+      }
+    },
+    "A Mac stopped half-way may not start until it is restored." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un Mac interrotto a metà potrebbe non avviarsi finché non viene ripristinato."
+          }
+        }
+      }
+    },
+    "A restore is in progress." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristino in corso."
+          }
+        }
+      }
+    },
+    "Activity" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attività"
+          }
+        }
+      }
+    },
+    "Administrator access is required." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Servono i privilegi di amministratore."
+          }
+        }
+      }
+    },
+    "Advanced" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avanzate"
+          }
+        }
+      }
+    },
+    "All" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutti"
+          }
+        }
+      }
+    },
+    "All Macs" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutti i Mac"
+          }
+        }
+      }
+    },
+    "All Releases" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutte le versioni"
+          }
+        }
+      }
+    },
+    "Animated background" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sfondo animato"
+          }
+        }
+      }
+    },
+    "Appearance" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aspetto"
+          }
+        }
+      }
+    },
+    "Apple Configurator is needed. Install it from the App Store." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serve Apple Configurator. Installalo dall’App Store."
+          }
+        }
+      }
+    },
+    "Apple silicon" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chip Apple"
+          }
+        }
+      }
+    },
+    "Apple silicon: after about 10 seconds release the three keys, and keep holding power for up to 10 more." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chip Apple: dopo circa 10 secondi rilascia i tre tasti e continua a tenere premuto il tasto di accensione per altri 10 al massimo."
+          }
+        }
+      }
+    },
+    "Apple suggests 60 GB free on this Mac. There is %@." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple consiglia 60 GB liberi su questo Mac. Disponibili: %@."
+          }
+        }
+      }
+    },
+    "Apple's guide" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guida Apple"
+          }
+        }
+      }
+    },
+    "Apple's guide to DFU ports" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guida Apple alle porte DFU"
+          }
+        }
+      }
+    },
+    "Apple: DFU Ports" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple: porte DFU"
+          }
+        }
+      }
+    },
+    "Apple: Revive or Restore a Mac" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple: riattivare o ripristinare un Mac"
+          }
+        }
+      }
+    },
+    "As Apple Silicon" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Come chip Apple"
+          }
+        }
+      }
+    },
+    "As Intel T2" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Come Intel T2"
+          }
+        }
+      }
+    },
+    "Auto" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatico"
+          }
+        }
+      }
+    },
+    "Back, leftmost port" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retro, porta più a sinistra"
+          }
+        }
+      }
+    },
+    "Back, middle port" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retro, porta centrale"
+          }
+        }
+      }
+    },
+    "Back, rightmost port" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retro, porta più a destra"
+          }
+        }
+      }
+    },
+    "Board" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scheda"
+          }
+        }
+      }
+    },
+    "Board ID" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ID scheda"
+          }
+        }
+      }
+    },
+    "Cable problem" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Problema al cavo"
+          }
+        }
+      }
+    },
+    "Cancel" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annulla"
+          }
+        }
+      }
+    },
+    "Cancelled." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annullato."
+          }
+        }
+      }
+    },
+    "Check" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verifica"
+          }
+        }
+      }
+    },
+    "Check Again" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verifica di nuovo"
+          }
+        }
+      }
+    },
+    "Check Now" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verifica ora"
+          }
+        }
+      }
+    },
+    "Check for Updates…" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verifica aggiornamenti…"
+          }
+        }
+      }
+    },
+    "Check the cable" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controlla il cavo"
+          }
+        }
+      }
+    },
+    "Checking disk…" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verifica del disco…"
+          }
+        }
+      }
+    },
+    "Checking the signature and installing…" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verifica della firma e installazione…"
+          }
+        }
+      }
+    },
+    "Checks the partition map and file systems. Nothing is changed." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verifica mappa delle partizioni e file system. Non modifica nulla."
+          }
+        }
+      }
+    },
+    "Chip" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chip"
+          }
+        }
+      }
+    },
+    "Chip ID" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ID chip"
+          }
+        }
+      }
+    },
+    "Choose Utilities › Share Disk, pick a volume and click Start Sharing." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli Utility › Condivisione Disco, seleziona un volume e fai clic su “Avvia condivisione”."
+          }
+        }
+      }
+    },
+    "Choose…" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli…"
+          }
+        }
+      }
+    },
+    "Clear" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancella"
+          }
+        }
+      }
+    },
+    "Configurator" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurator"
+          }
+        }
+      }
+    },
+    "Connect" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collega"
+          }
+        }
+      }
+    },
+    "Connect a Mac" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collega un Mac"
+          }
+        }
+      }
+    },
+    "Connect another Mac" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collega un altro Mac"
+          }
+        }
+      }
+    },
+    "Connect the two Macs with a Thunderbolt cable." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collega i due Mac con un cavo Thunderbolt."
+          }
+        }
+      }
+    },
+    "Connect the two Macs with a USB-C or Thunderbolt cable." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collega i due Mac con un cavo USB-C o Thunderbolt."
+          }
+        }
+      }
+    },
+    "Connected" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collegato"
+          }
+        }
+      }
+    },
+    "Connected." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collegato."
+          }
+        }
+      }
+    },
+    "Copy" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia"
+          }
+        }
+      }
+    },
+    "Copy Diagnostic Report" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia report diagnostico"
+          }
+        }
+      }
+    },
+    "Copy Report" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia report"
+          }
+        }
+      }
+    },
+    "DFU" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DFU"
+          }
+        }
+      }
+    },
+    "DFU Port" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Porta DFU"
+          }
+        }
+      }
+    },
+    "Dark" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scuro"
+          }
+        }
+      }
+    },
+    "Debug USB" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Debug USB"
+          }
+        }
+      }
+    },
+    "Debug USB couldn't be turned on." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile attivare il debug USB."
+          }
+        }
+      }
+    },
+    "Debug USB is on." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Debug USB attivo."
+          }
+        }
+      }
+    },
+    "Demo" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demo"
+          }
+        }
+      }
+    },
+    "Demo: simulated hardware. Nothing real is touched." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demo: hardware simulato. Nulla di reale viene toccato."
+          }
+        }
+      }
+    },
+    "Desktop" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desktop"
+          }
+        }
+      }
+    },
+    "Developer" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sviluppatore"
+          }
+        }
+      }
+    },
+    "Device" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dispositivo"
+          }
+        }
+      }
+    },
+    "Disk Utility" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utility Disco"
+          }
+        }
+      }
+    },
+    "Disks" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dischi"
+          }
+        }
+      }
+    },
+    "Dismiss" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiudi"
+          }
+        }
+      }
+    },
+    "Done" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fine"
+          }
+        }
+      }
+    },
+    "Download Manually" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scarica manualmente"
+          }
+        }
+      }
+    },
+    "Downloaded from Apple." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scaricato da Apple."
+          }
+        }
+      }
+    },
+    "Downloading…" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download in corso…"
+          }
+        }
+      }
+    },
+    "ECID" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ECID"
+          }
+        }
+      }
+    },
+    "Effects" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Effetti"
+          }
+        }
+      }
+    },
+    "Effects pause whenever the window is in the background." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli effetti si fermano quando la finestra è in secondo piano."
+          }
+        }
+      }
+    },
+    "Eject" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Espelli"
+          }
+        }
+      }
+    },
+    "Eject before disconnecting the cable" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Espelli prima di scollegare il cavo"
+          }
+        }
+      }
+    },
+    "Enter DFU" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entra in DFU"
+          }
+        }
+      }
+    },
+    "Enter DFU by Hand" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entrare in DFU a mano"
+          }
+        }
+      }
+    },
+    "Enter DFU by Hand…" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entra in DFU a mano…"
+          }
+        }
+      }
+    },
+    "Enter your password if asked." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inserisci la password se richiesta."
+          }
+        }
+      }
+    },
+    "Entering DFU…" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingresso in DFU…"
+          }
+        }
+      }
+    },
+    "Erase and Restore" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inizializza e ripristina"
+          }
+        }
+      }
+    },
+    "Erase and restore?" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inizializzare e ripristinare?"
+          }
+        }
+      }
+    },
+    "Erases the Mac and reinstalls everything" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inizializza il Mac e reinstalla tutto"
+          }
+        }
+      }
+    },
+    "Everything on %@ will be deleted. This can't be undone." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutto il contenuto di %@ verrà eliminato. L’operazione non può essere annullata."
+          }
+        }
+      }
+    },
+    "Find the DFU Port" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trova la porta DFU"
+          }
+        }
+      }
+    },
+    "Firmware ready: %@" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Firmware pronto: %@"
+          }
+        }
+      }
+    },
+    "Force DFU" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forza DFU"
+          }
+        }
+      }
+    },
+    "From a firmware file" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Da un file firmware"
+          }
+        }
+      }
+    },
+    "General" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generali"
+          }
+        }
+      }
+    },
+    "Get Apple Configurator" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scarica Apple Configurator"
+          }
+        }
+      }
+    },
+    "GitHub didn't answer (%lld)." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub non ha risposto (%lld)."
+          }
+        }
+      }
+    },
+    "Hide Inspector" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nascondi inspector"
+          }
+        }
+      }
+    },
+    "Hold the power button and plug the Mac back in." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tieni premuto il tasto di accensione e ricollega il Mac all’alimentazione."
+          }
+        }
+      }
+    },
+    "Hold the power button for up to 10 seconds, until the Mac turns off." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tieni premuto il tasto di accensione fino a 10 secondi, finché il Mac non si spegne."
+          }
+        }
+      }
+    },
+    "Identifier" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identificatore"
+          }
+        }
+      }
+    },
+    "Identity" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identità"
+          }
+        }
+      }
+    },
+    "If that Mac is on: System Settings › General › Startup Disk › Restart in Target Disk Mode." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se quel Mac è acceso: Impostazioni di Sistema › Generali › Disco di Avvio › Riavvia in modalità disco di destinazione."
+          }
+        }
+      }
+    },
+    "In recovery mode." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In modalità di recupero."
+          }
+        }
+      }
+    },
+    "Inspector" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inspector"
+          }
+        }
+      }
+    },
+    "Install the version in an IPSW file you choose." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installa la versione contenuta in un file IPSW a tua scelta."
+          }
+        }
+      }
+    },
+    "Intel Mac" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac Intel"
+          }
+        }
+      }
+    },
+    "Intel with T2" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intel con T2"
+          }
+        }
+      }
+    },
+    "Intel with T2: hold all four for about 3 seconds." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intel con T2: tieni premuti tutti e quattro per circa 3 secondi."
+          }
+        }
+      }
+    },
+    "Intel, no T2" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intel senza T2"
+          }
+        }
+      }
+    },
+    "Its disk appears here and in the Finder." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il suo disco compare qui e nel Finder."
+          }
+        }
+      }
+    },
+    "Keep Going" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continua"
+          }
+        }
+      }
+    },
+    "Keep both Macs connected and powered." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tieni entrambi i Mac collegati e alimentati."
+          }
+        }
+      }
+    },
+    "Keep holding for up to 10 seconds." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continua a tenere premuto fino a 10 secondi."
+          }
+        }
+      }
+    },
+    "Keep this Mac awake" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impedisci lo stop di questo Mac"
+          }
+        }
+      }
+    },
+    "Kind" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tipo"
+          }
+        }
+      }
+    },
+    "Language" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lingua"
+          }
+        }
+      }
+    },
+    "Laptop" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Portatile"
+          }
+        }
+      }
+    },
+    "Latest macOS" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS più recente"
+          }
+        }
+      }
+    },
+    "Left side, nearest the front" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lato sinistro, la più vicina al fronte"
+          }
+        }
+      }
+    },
+    "Left side, nearest the hinge" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lato sinistro, la più vicina alla cerniera"
+          }
+        }
+      }
+    },
+    "Left side, next to MagSafe" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lato sinistro, accanto a MagSafe"
+          }
+        }
+      }
+    },
+    "Light" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiaro"
+          }
+        }
+      }
+    },
+    "Location" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Posizione"
+          }
+        }
+      }
+    },
+    "Look for disks again" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerca di nuovo i dischi"
+          }
+        }
+      }
+    },
+    "Mac DFU Studio" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac DFU Studio"
+          }
+        }
+      }
+    },
+    "Mac DFU Studio needs to talk to the USB-C port controller." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac DFU Studio deve comunicare con il controller della porta USB-C."
+          }
+        }
+      }
+    },
+    "Mac DFU Studio on GitHub" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac DFU Studio su GitHub"
+          }
+        }
+      }
+    },
+    "Mac with Apple silicon" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac con chip Apple"
+          }
+        }
+      }
+    },
+    "Macs" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac"
+          }
+        }
+      }
+    },
+    "Menus change language the next time the app opens." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I menu cambiano lingua alla prossima apertura dell’app."
+          }
+        }
+      }
+    },
+    "Migration Assistant" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Assistente Migrazione"
+          }
+        }
+      }
+    },
+    "Model" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modello"
+          }
+        }
+      }
+    },
+    "Model, chip or identifier" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modello, chip o identificatore"
+          }
+        }
+      }
+    },
+    "More" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Altro"
+          }
+        }
+      }
+    },
+    "More actions" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Altre azioni"
+          }
+        }
+      }
+    },
+    "Motion" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Movimento"
+          }
+        }
+      }
+    },
+    "Move the app to the Applications folder, then update." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sposta l’app nella cartella Applicazioni, poi aggiorna."
+          }
+        }
+      }
+    },
+    "Moves accounts, apps and files from a connected Mac" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trasferisce account, app e file da un Mac collegato"
+          }
+        }
+      }
+    },
+    "Networking between two Macs over a Thunderbolt cable" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rete tra due Mac tramite cavo Thunderbolt"
+          }
+        }
+      }
+    },
+    "No Activity" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessuna attività"
+          }
+        }
+      }
+    },
+    "No DFU port. Use Target Disk Mode." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessuna porta DFU. Usa la modalità disco di destinazione."
+          }
+        }
+      }
+    },
+    "No Mac Connected" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun Mac collegato"
+          }
+        }
+      }
+    },
+    "No Mac is connected to this port." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun Mac collegato a questa porta."
+          }
+        }
+      }
+    },
+    "No Thunderbolt Bridge" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun bridge Thunderbolt"
+          }
+        }
+      }
+    },
+    "Not Now" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non ora"
+          }
+        }
+      }
+    },
+    "Not checked yet" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non ancora verificato"
+          }
+        }
+      }
+    },
+    "Not connected" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non collegato"
+          }
+        }
+      }
+    },
+    "Not enough disk space. Free up %@ and try again." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spazio su disco insufficiente. Libera %@ e riprova."
+          }
+        }
+      }
+    },
+    "On" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acceso"
+          }
+        }
+      }
+    },
+    "On the other Mac, hold the power button until Options appears, then open Options." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sull’altro Mac tieni premuto il tasto di accensione finché non compare Opzioni, poi apri Opzioni."
+          }
+        }
+      }
+    },
+    "On this Mac, open Network, double-click that Mac and connect as Guest." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su questo Mac apri Rete, fai doppio clic su quel Mac e connettiti come Ospite."
+          }
+        }
+      }
+    },
+    "Open %@ in Terminal" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apri %@ nel Terminale"
+          }
+        }
+      }
+    },
+    "Open Network" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apri Rete"
+          }
+        }
+      }
+    },
+    "Opens the Finder's Network window" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apre la finestra Rete del Finder"
+          }
+        }
+      }
+    },
+    "Other Mac" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Altro Mac"
+          }
+        }
+      }
+    },
+    "Passed" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Superato"
+          }
+        }
+      }
+    },
+    "Plug a USB-C cable into the DFU port of both Macs." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collega un cavo USB-C alla porta DFU di entrambi i Mac."
+          }
+        }
+      }
+    },
+    "Port" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Porta"
+          }
+        }
+      }
+    },
+    "Port DFU" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DFU della porta"
+          }
+        }
+      }
+    },
+    "Press and release the power button, then at once hold all four:" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premi e rilascia il tasto di accensione, poi subito tieni premuti tutti e quattro:"
+          }
+        }
+      }
+    },
+    "Problems found" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Problemi rilevati"
+          }
+        }
+      }
+    },
+    "Progress" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avanzamento"
+          }
+        }
+      }
+    },
+    "Puts the connected Mac into DFU mode" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mette in DFU il Mac collegato"
+          }
+        }
+      }
+    },
+    "Quit Anyway" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esci comunque"
+          }
+        }
+      }
+    },
+    "Ready to revive or restore." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pronto per riattivazione o ripristino."
+          }
+        }
+      }
+    },
+    "Recovery" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recupero"
+          }
+        }
+      }
+    },
+    "Reduce Effects" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riduci effetti"
+          }
+        }
+      }
+    },
+    "Reduce Motion is on in System Settings, so effects stay off." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Riduci movimento” è attivo in Impostazioni di Sistema: gli effetti restano spenti."
+          }
+        }
+      }
+    },
+    "Refresh" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiorna"
+          }
+        }
+      }
+    },
+    "Reinstalls firmware and keeps the data" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reinstalla il firmware e conserva i dati"
+          }
+        }
+      }
+    },
+    "Repairs a disk with First Aid" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripara un disco con S.O.S."
+          }
+        }
+      }
+    },
+    "Report copied." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Report copiato."
+          }
+        }
+      }
+    },
+    "Reset" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reimposta"
+          }
+        }
+      }
+    },
+    "Reset All Settings…" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reimposta tutte le impostazioni…"
+          }
+        }
+      }
+    },
+    "Reset all settings?" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reimpostare tutte le impostazioni?"
+          }
+        }
+      }
+    },
+    "Restart" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riavvia"
+          }
+        }
+      }
+    },
+    "Restart Target" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riavvia il Mac collegato"
+          }
+        }
+      }
+    },
+    "Restarting…" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riavvio…"
+          }
+        }
+      }
+    },
+    "Restarts the connected Mac" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riavvia il Mac collegato"
+          }
+        }
+      }
+    },
+    "Restore complete." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristino completato."
+          }
+        }
+      }
+    },
+    "Restore complete. The Mac starts macOS Recovery over the internet: install macOS from there." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristino completato. Il Mac avvia Recupero di macOS via internet: installa macOS da lì."
+          }
+        }
+      }
+    },
+    "Restore failed." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristino non riuscito."
+          }
+        }
+      }
+    },
+    "Restore started." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristino avviato."
+          }
+        }
+      }
+    },
+    "Restores as" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristinato come"
+          }
+        }
+      }
+    },
+    "Restore…" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristina…"
+          }
+        }
+      }
+    },
+    "Restoring" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In ripristino"
+          }
+        }
+      }
+    },
+    "Restoring…" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristino…"
+          }
+        }
+      }
+    },
+    "Revive" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riattiva"
+          }
+        }
+      }
+    },
+    "Revive complete." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riattivazione completata."
+          }
+        }
+      }
+    },
+    "Revive failed." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riattivazione non riuscita."
+          }
+        }
+      }
+    },
+    "Revive started." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riattivazione avviata."
+          }
+        }
+      }
+    },
+    "Reviving and restoring use Apple Configurator" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riattivazione e ripristino usano Apple Configurator"
+          }
+        }
+      }
+    },
+    "Reviving…" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riattivazione…"
+          }
+        }
+      }
+    },
+    "Running macOS. Ready for DFU." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS in esecuzione. Pronto per il DFU."
+          }
+        }
+      }
+    },
+    "SMART OK" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SMART OK"
+          }
+        }
+      }
+    },
+    "SMART failing" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SMART in errore"
+          }
+        }
+      }
+    },
+    "Serial" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Numero di serie"
+          }
+        }
+      }
+    },
+    "Serial console is ready." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Console seriale pronta."
+          }
+        }
+      }
+    },
+    "Serial console opened in Terminal." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Console seriale aperta nel Terminale."
+          }
+        }
+      }
+    },
+    "Serial console speed" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Velocità console seriale"
+          }
+        }
+      }
+    },
+    "Share Disk" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Condividi disco"
+          }
+        }
+      }
+    },
+    "Show Inspector" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra inspector"
+          }
+        }
+      }
+    },
+    "Show details" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra dettagli"
+          }
+        }
+      }
+    },
+    "Show in the Finder" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra nel Finder"
+          }
+        }
+      }
+    },
+    "Show only one kind of Mac" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra un solo tipo di Mac"
+          }
+        }
+      }
+    },
+    "Show or hide details and activity" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra o nascondi dettagli e attività"
+          }
+        }
+      }
+    },
+    "Show the full output" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra l’output completo"
+          }
+        }
+      }
+    },
+    "Simulated hardware. Nothing real is touched." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hardware simulato. Nulla di reale viene toccato."
+          }
+        }
+      }
+    },
+    "Something went wrong." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si è verificato un errore."
+          }
+        }
+      }
+    },
+    "Sounds" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suoni"
+          }
+        }
+      }
+    },
+    "Start Serial Console" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avvia console seriale"
+          }
+        }
+      }
+    },
+    "Start the Intel Mac while holding" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avvia il Mac Intel tenendo premuto"
+          }
+        }
+      }
+    },
+    "Starting serial console…" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avvio console seriale…"
+          }
+        }
+      }
+    },
+    "State" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stato"
+          }
+        }
+      }
+    },
+    "Status" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stato"
+          }
+        }
+      }
+    },
+    "Stop" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interrompi"
+          }
+        }
+      }
+    },
+    "Stop now?" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interrompere ora?"
+          }
+        }
+      }
+    },
+    "Stopped." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interrotto."
+          }
+        }
+      }
+    },
+    "Switch to Debug USB" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passa a debug USB"
+          }
+        }
+      }
+    },
+    "Switching to debug USB…" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passaggio a debug USB…"
+          }
+        }
+      }
+    },
+    "System" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sistema"
+          }
+        }
+      }
+    },
+    "Target Disk Mode" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modalità disco di destinazione"
+          }
+        }
+      }
+    },
+    "Test This Port" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prova questa porta"
+          }
+        }
+      }
+    },
+    "Testing the port…" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prova della porta…"
+          }
+        }
+      }
+    },
+    "That serial port can't be opened." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile aprire questa porta seriale."
+          }
+        }
+      }
+    },
+    "The DFU port is not where the rest of this family has it" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La porta DFU non è dove si trova nel resto della famiglia"
+          }
+        }
+      }
+    },
+    "The Mac didn't accept the DFU request." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il Mac non ha accettato la richiesta DFU."
+          }
+        }
+      }
+    },
+    "The Mac didn't restart." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il Mac non si è riavviato."
+          }
+        }
+      }
+    },
+    "The Mac is entering DFU." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il Mac sta entrando in DFU."
+          }
+        }
+      }
+    },
+    "The Mac is restarting." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il Mac si sta riavviando."
+          }
+        }
+      }
+    },
+    "The Mac never sleeps during a revive or a restore." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durante riattivazione o ripristino il Mac non va mai in stop."
+          }
+        }
+      }
+    },
+    "The T2 chip's firmware is restored. Afterwards the Mac starts macOS Recovery over the internet, where you install macOS." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Viene ripristinato il firmware del chip T2. Poi il Mac avvia Recupero di macOS via internet, da cui installi macOS."
+          }
+        }
+      }
+    },
+    "The download is damaged." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il download è danneggiato."
+          }
+        }
+      }
+    },
+    "The download isn't notarized by Apple. Nothing was installed." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il download non è autenticato da Apple. Non è stato installato nulla."
+          }
+        }
+      }
+    },
+    "The download isn't signed by the developer. Nothing was installed. (%@)" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il download non è firmato dallo sviluppatore. Non è stato installato nulla. (%@)"
+          }
+        }
+      }
+    },
+    "The download isn't the announced version. Nothing was installed." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il download non è la versione annunciata. Non è stato installato nulla."
+          }
+        }
+      }
+    },
+    "The firmware file can't be read." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile leggere il file del firmware."
+          }
+        }
+      }
+    },
+    "The helper tool is missing or damaged. Reinstall the app." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lo strumento di supporto manca o è danneggiato. Reinstalla l’app."
+          }
+        }
+      }
+    },
+    "The port controller needs a revive." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il controller della porta va riattivato."
+          }
+        }
+      }
+    },
+    "The port controller refused the request." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il controller della porta ha rifiutato la richiesta."
+          }
+        }
+      }
+    },
+    "The port on this Mac that commands are sent through" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La porta di questo Mac da cui partono i comandi"
+          }
+        }
+      }
+    },
+    "The port works and something is connected." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La porta funziona e qualcosa è collegato."
+          }
+        }
+      }
+    },
+    "The port works. Nothing is connected." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La porta funziona. Niente collegato."
+          }
+        }
+      }
+    },
+    "The release has no installable download." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La versione non ha un download installabile."
+          }
+        }
+      }
+    },
+    "The request couldn't be sent." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile inviare la richiesta."
+          }
+        }
+      }
+    },
+    "The screen stays blank, and the Mac appears here." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lo schermo resta nero e il Mac compare qui."
+          }
+        }
+      }
+    },
+    "The serial console couldn't be opened." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile aprire la console seriale."
+          }
+        }
+      }
+    },
+    "The serial console couldn't be started." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile avviare la console seriale."
+          }
+        }
+      }
+    },
+    "This Mac" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo Mac"
+          }
+        }
+      }
+    },
+    "This copy can't update itself. Download the new version from GitHub." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa copia non può aggiornarsi da sola. Scarica la nuova versione da GitHub."
+          }
+        }
+      }
+    },
+    "This folder can't be written to. Download the new version from GitHub." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile scrivere in questa cartella. Scarica la nuova versione da GitHub."
+          }
+        }
+      }
+    },
+    "This needs an Apple silicon Mac as the host." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serve un Mac con chip Apple come host."
+          }
+        }
+      }
+    },
+    "This port couldn't be opened." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile aprire questa porta."
+          }
+        }
+      }
+    },
+    "Thunderbolt Bridge idle" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bridge Thunderbolt inattivo"
+          }
+        }
+      }
+    },
+    "Thunderbolt Bridge on" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bridge Thunderbolt attivo"
+          }
+        }
+      }
+    },
+    "Tower: top, farthest from the power button. Rack: front, nearest it." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tower: sopra, la più lontana dal tasto di accensione. Rack: davanti, la più vicina."
+          }
+        }
+      }
+    },
+    "Try Again" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riprova"
+          }
+        }
+      }
+    },
+    "Turn Off All Effects" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disattiva tutti gli effetti"
+          }
+        }
+      }
+    },
+    "Turn On All Effects" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attiva tutti gli effetti"
+          }
+        }
+      }
+    },
+    "USB" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "USB"
+          }
+        }
+      }
+    },
+    "Unplug the Mac from power." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scollega il Mac dall’alimentazione."
+          }
+        }
+      }
+    },
+    "Up to date" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiornato"
+          }
+        }
+      }
+    },
+    "Update and Relaunch" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiorna e riavvia"
+          }
+        }
+      }
+    },
+    "Updates" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiornamenti"
+          }
+        }
+      }
+    },
+    "Use a USB-C charge cable — not Thunderbolt — and no hub." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa un cavo di ricarica USB-C, non Thunderbolt, e nessun hub."
+          }
+        }
+      }
+    },
+    "Use a USB-C charge cable. Not Thunderbolt, no hub." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa un cavo di ricarica USB-C. Non Thunderbolt, nessun hub."
+          }
+        }
+      }
+    },
+    "Use another Mac as a disk" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa un altro Mac come disco"
+          }
+        }
+      }
+    },
+    "Version" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versione"
+          }
+        }
+      }
+    },
+    "Version %@ available" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versione %@ disponibile"
+          }
+        }
+      }
+    },
+    "Version %@ is ready" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La versione %@ è pronta"
+          }
+        }
+      }
+    },
+    "View" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vista"
+          }
+        }
+      }
+    },
+    "WTF mode" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modalità WTF"
+          }
+        }
+      }
+    },
+    "Waiting for firmware." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In attesa del firmware."
+          }
+        }
+      }
+    },
+    "When done, eject it, then turn that Mac off with its power button." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al termine espellilo, poi spegni quel Mac con il tasto di accensione."
+          }
+        }
+      }
+    },
+    "When done, eject the volume, then click Stop Sharing." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al termine espelli il volume, poi fai clic su “Interrompi condivisione”."
+          }
+        }
+      }
+    },
+    "Which port?" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quale porta?"
+          }
+        }
+      }
+    },
+    "Working" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In corso"
+          }
+        }
+      }
+    },
+    "You have %@." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hai la %@."
+          }
+        }
+      }
+    },
+    "iBoot" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iBoot"
+          }
+        }
+      }
+    },
+    "left control" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "control sinistro"
+          }
+        }
+      }
+    },
+    "left option" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "opzione sinistro"
+          }
+        }
+      }
+    },
+    "power" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "accensione"
+          }
+        }
+      }
+    },
+    "right shift" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "maiuscole destro"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

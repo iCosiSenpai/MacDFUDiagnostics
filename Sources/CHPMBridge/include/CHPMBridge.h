@@ -9,6 +9,9 @@
 extern "C" {
 #endif
 
+/// A USB-PD VDM carries at most 7 data objects (header + 6 VDOs).
+#define HPM_MAX_VDM_WORDS 7
+
 typedef enum {
     HPM_ACTION_PROBE = 0,
     HPM_ACTION_DFU_AUTO = 1,       // Tries Apple Silicon (0x106) then falls back to Intel T2 (0x105 / 0x80020000)
@@ -49,7 +52,7 @@ typedef struct {
     uint32_t vdm_reply_header;
     char hpm_status[16];           // e.g. "APP ", "DBMa"
     char host_platform[64];        // e.g. "J314sAP"
-    char message[512];
+    char message[512];             // English, technical; the app localizes by status_code
 } HPMExecutionResult;
 
 /// Reads the host Mac's IOPlatformExpertDevice name (e.g., "J314sAP") and computes its 4-byte unlock key.

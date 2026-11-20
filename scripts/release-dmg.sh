@@ -5,6 +5,9 @@ REPO_ROOT="${0:A:h:h}"
 cd "$REPO_ROOT"
 
 NOTARY_PROFILE="${NOTARY_PROFILE:-NOTARY}"
+TEAM_ID="6KV8L8WQ9D"
+BUNDLE_ID="com.macsenpai.MacDFUDiagnostics"
+HELPER_ID="$BUNDLE_ID.vdm-helper"
 SIGN_IDENTITY="${SIGN_IDENTITY:-$(security find-identity -v -p codesigning | awk -F\" '/Developer ID Application/ {print $2; exit}')}"
 
 if [[ -z "$SIGN_IDENTITY" ]]; then
@@ -41,16 +44,29 @@ ditto --norsrc --noextattr --noacl "$REPO_ROOT/MacDFUDiagnostics.app" "$STAGE_AP
 xattr -cr "$STAGE_APP" 2>/dev/null || true
 
 echo "==> 3. Signing nested helper and outer app bundle with hardened runtime..."
+# Inside out, never --deep. The helper gets its own identifier: the app refuses to run a helper as
+# root unless it is signed by this team *for that identifier*.
 codesign --force --options runtime --timestamp \
     --sign "$SIGN_IDENTITY" \
+    --identifier "$HELPER_ID" \
     "$STAGE_APP/Contents/MacOS/macdfu-vdm-helper"
 
 codesign --force --options runtime --timestamp \
     --sign "$SIGN_IDENTITY" \
     "$STAGE_APP"
 
-codesign --verify --strict --deep --verbose=2 "$STAGE_APP"
-echo "    App signature verified."
+# Verify against the same requirements the app itself enforces (see CodeTrust.swift). A plain
+# `codesign --verify` would pass for any signer; these name the team and the identifier.
+requirement() {
+    echo "=anchor apple generic and identifier \"$1\" and certificate 1[field.1.2.840.113635.100.6.2.6] exists and certificate leaf[field.1.2.840.113635.100.6.1.13] exists and certificate leaf[subject.OU] = \"$TEAM_ID\""
+}
+codesign --verify --strict --deep --verbose=2 -R "$(requirement "$BUNDLE_ID")" "$STAGE_APP"
+codesign --verify --strict -R "$(requirement "$HELPER_ID")" "$STAGE_APP/Contents/MacOS/macdfu-vdm-helper"
+if codesign -d --entitlements - "$STAGE_APP" 2>/dev/null | grep -q get-task-allow; then
+    echo "ERROR: the app carries get-task-allow." >&2
+    exit 1
+fi
+echo "    App and helper signatures verified against the team requirement."
 
 notarize_file() {
     local file_to_submit="$1"
@@ -73,7 +89,7 @@ notarize_file "$APP_ZIP"
 echo "==> 5. Stapling notarization ticket to MacDFUDiagnostics.app..."
 xcrun stapler staple "$STAGE_APP"
 xcrun stapler validate "$STAGE_APP"
-spctl -a -vv "$STAGE_APP"
+spctl -a -vv "$STAGE_APP" 2>&1 | tee /dev/stderr | grep -q "source=Notarized Developer ID"
 
 # Copy signed & notarized app back to repo root and create distributable ZIP
 rm -rf "$REPO_ROOT/MacDFUDiagnostics.app" "$FINAL_ZIP"
@@ -107,7 +123,7 @@ codesign --force --timestamp --sign "$SIGN_IDENTITY" "$FINAL_DMG"
 notarize_file "$FINAL_DMG"
 xcrun stapler staple "$FINAL_DMG"
 xcrun stapler validate "$FINAL_DMG"
-spctl -a -vv -t open --context context:primary-signature "$FINAL_DMG"
+spctl -a -vv -t open --context context:primary-signature "$FINAL_DMG" 2>&1 | tee /dev/stderr | grep -q "source=Notarized Developer ID"
 
 echo "==> SUCCESS! Signed, Notarized & Stapled artifacts:"
 ls -lh "$FINAL_DMG" "$FINAL_ZIP"

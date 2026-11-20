@@ -3,6 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "MacDFUDiagnostics",
+    defaultLocalization: "en",
     platforms: [
         .macOS(.v15)
     ],
@@ -31,10 +32,13 @@ let package = Package(
             path: "Sources/MacDFUDiagnostics",
             linkerSettings: [
                 .linkedFramework("IOKit"),
-                .linkedFramework("CoreFoundation"),
-                .linkedFramework("AppKit"),
-                .linkedFramework("SwiftUI")
+                .linkedFramework("Security")
             ]
+        ),
+        .testTarget(
+            name: "MacDFUDiagnosticsTests",
+            dependencies: ["MacDFUDiagnostics"],
+            path: "Tests/MacDFUDiagnosticsTests"
         )
     ]
 )

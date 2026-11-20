@@ -1,26 +1,97 @@
-MIT License
+Mac DFU Studio — Proprietary Software License
 
-Copyright (c) 2026 iCosiSenpai
+Copyright © 2026 Alessio Cosi (iCosiSenpai). All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This license applies to Mac DFU Studio ("the Software") version 2.0.0 and to every later version:
+the source code, the compiled application, the helper tool, the artwork, the documentation and
+everything else in this repository. Earlier versions were released under the terms that accompanied
+them.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. OWNERSHIP
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+   The Software is licensed, not sold. Alessio Cosi ("the Author") owns it and keeps every right
+   that this license does not expressly grant. Nothing here transfers ownership of the Software or
+   of any intellectual property in it.
 
----
-Third-Party Notices:
-- AppleHPM IOKit VDM structures in `Sources/CHPMBridge` are derived from `AsahiLinux/macvdmtool`
-  and `osy/ThunderboltPatcher` (licensed under the Apache License, Version 2.0).
+2. THE SOURCE CODE IS PUBLISHED TO BE READ, NOT TO BE REUSED
+
+   The source code is made available so that it can be inspected. You may read it, on GitHub or in
+   a private copy made for the sole purpose of reading it. That is all.
+
+   Without the Author's prior written permission you may NOT:
+
+   a. copy, reproduce or republish the source code, in whole or in part;
+   b. modify it, translate it, adapt it or create derivative works from it;
+   c. compile it for anyone other than yourself, or distribute any build of it;
+   d. include any part of it in another product, project, library or service, whether open source
+      or closed, free or paid;
+   e. distribute, sublicense, sell, rent, lease or lend it;
+   f. use it, or any part of it, to train, fine-tune or evaluate a machine-learning model or any
+      other automated system that generates code;
+   g. remove or alter any copyright, trademark or license notice.
+
+   This is not an open-source license. Publication of the source code does not make the Software
+   open source, and no license is granted by implication, estoppel or otherwise.
+
+   GitHub's Terms of Service give GitHub users limited rights to view and to fork public
+   repositories through GitHub's own features. This license does not take those rights away, and
+   it grants nothing beyond them: a fork made on GitHub is subject to every restriction above.
+
+3. THE APPLICATION
+
+   The Author grants you a personal, non-exclusive, non-transferable, revocable license to install
+   and run the unmodified application, as downloaded from the Author's official release page
+   (https://github.com/iCosiSenpai/MacDFUDiagnostics/releases), on computers you own or control,
+   for personal use and for the internal work of your business — including repairing your
+   customers' computers.
+
+   You may NOT:
+
+   a. redistribute, mirror, re-host or resell the application, alone or bundled with anything else;
+   b. modify the application, or remove or bypass its code signature or its update mechanism;
+   c. reverse engineer, decompile or disassemble it, except to the extent that the law of your
+      country gives you that right regardless of this license;
+   d. present the application, or a modified copy of it, as your own work.
+
+4. CONTRIBUTIONS
+
+   If you send the Author a suggestion, a correction or code — by pull request, issue, e-mail or
+   any other means — you grant the Author a perpetual, irrevocable, worldwide, royalty-free right
+   to use, modify and relicense it as part of the Software, with no obligation to you.
+
+5. TERMINATION
+
+   This license ends automatically if you break any of its terms. When it ends you must stop using
+   the Software and destroy every copy of it in your possession. Sections 1, 2, 4, 6, 7 and 8
+   survive termination.
+
+6. NO WARRANTY
+
+   The Software works at a very low level. It sends commands to the USB-C port controller of your
+   computer, puts other computers into firmware-update mode, and ERASES AND REINSTALLS THEM when
+   you ask it to. Operations of this kind can fail, can leave a computer unable to start until it
+   is restored, and can destroy data permanently.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+   BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+   NON-INFRINGEMENT. YOU USE IT ENTIRELY AT YOUR OWN RISK, AND YOU ARE RESPONSIBLE FOR BACKING UP
+   ANY DATA BEFORE USING IT.
+
+7. LIMITATION OF LIABILITY
+
+   TO THE MAXIMUM EXTENT PERMITTED BY LAW, IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM,
+   DAMAGES OR OTHER LIABILITY — INCLUDING LOSS OF DATA, DAMAGE TO HARDWARE, LOSS OF PROFIT OR
+   BUSINESS INTERRUPTION — WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
+   OF OR IN CONNECTION WITH THE SOFTWARE OR ITS USE.
+
+8. TRADEMARKS AND THIRD PARTIES
+
+   Mac, macOS, MacBook, iMac, Apple Configurator and Apple silicon are trademarks of Apple Inc.
+   Mac DFU Studio is an independent project. It is not affiliated with, endorsed by or supported
+   by Apple Inc.
+
+   A small part of the Software is derived from third-party work that remains under its own
+   license. See THIRD-PARTY-NOTICES.md.
+
+For permissions beyond this license, contact the Author through
+https://github.com/iCosiSenpai/MacDFUDiagnostics.

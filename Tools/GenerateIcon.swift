@@ -235,5 +235,4 @@ for (name, px) in specs {
     try savePNG(masterImage, to: iconsetDir.appendingPathComponent(name), pixelSize: px)
 }
 try savePNG(masterImage, to: docsImgDir.appendingPathComponent("icon.png"), pixelSize: 512)
-try savePNG(masterImage, to: root.appendingPathComponent("Resources/AppLogo.png"), pixelSize: 256)
 print("Generated iconset and PNG assets successfully.")

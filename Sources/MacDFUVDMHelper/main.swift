@@ -1,6 +1,11 @@
 import Foundation
 import CHPMBridge
 
+// macdfu-vdm-helper — sends one USB-PD vendor message through the host's AppleHPM port controller.
+//
+// The app runs this as root, so the command line is parsed strictly: an unknown command, an unknown
+// option or a malformed value is an error, never a silent fallback to a default port.
+
 struct HelperOutput: Codable {
     let statusCode: Int32
     let usedRID: Int32
@@ -13,77 +18,83 @@ struct HelperOutput: Codable {
     let message: String
 }
 
+enum HelperExit {
+    static let success: Int32 = 0
+    static let actionFailed: Int32 = 1
+    static let usage: Int32 = 64 // EX_USAGE
+}
+
+let usage = "Usage: macdfu-vdm-helper <dfu|dfu-silicon|dfu-t2|reboot|serial|debugusb|probe> [--rid <0-31>] [--json]"
+
+func action(named name: String) -> HPMActionType? {
+    switch name {
+    case "dfu", "dfu-auto": HPM_ACTION_DFU_AUTO
+    case "dfu-silicon": HPM_ACTION_DFU_SILICON
+    case "dfu-t2": HPM_ACTION_DFU_T2
+    case "reboot": HPM_ACTION_REBOOT
+    case "serial": HPM_ACTION_SERIAL
+    case "debugusb", "kis": HPM_ACTION_DEBUGUSB
+    case "probe": HPM_ACTION_PROBE
+    default: nil
+    }
+}
+
+func fail(_ text: String) -> Int32 {
+    FileHandle.standardError.write(Data("\(text)\n\(usage)\n".utf8))
+    return HelperExit.usage
+}
+
 func runHelper() -> Int32 {
-    let args = Array(CommandLine.arguments.dropFirst())
-    guard let cmd = args.first else {
-        print("Usage: macdfu-vdm-helper <dfu|dfu-silicon|dfu-t2|reboot|serial|debugusb|probe> [--rid <N>] [--json]")
-        return 1
+    var args = Array(CommandLine.arguments.dropFirst())
+    guard !args.isEmpty else { return fail("Missing command.") }
+
+    let commandName = args.removeFirst()
+    guard let action = action(named: commandName) else {
+        return fail("Unknown command: \(commandName)")
     }
 
     var targetRID: Int32 = -1
     var jsonOutput = false
-    var i = 1
-    while i < args.count {
-        if args[i] == "--rid", i + 1 < args.count, let r = Int32(args[i + 1]) {
-            targetRID = r
-            i += 2
-        } else if args[i] == "--json" {
+    var index = 0
+    while index < args.count {
+        switch args[index] {
+        case "--rid":
+            guard index + 1 < args.count, let rid = Int32(args[index + 1]), (0...31).contains(rid) else {
+                return fail("--rid needs a port number between 0 and 31.")
+            }
+            targetRID = rid
+            index += 2
+        case "--json":
             jsonOutput = true
-            i += 1
-        } else {
-            i += 1
+            index += 1
+        default:
+            return fail("Unknown option: \(args[index])")
         }
     }
 
-    let action: HPMActionType
-    switch cmd.lowercased() {
-    case "dfu", "dfu-auto":
-        action = HPM_ACTION_DFU_AUTO
-    case "dfu-silicon":
-        action = HPM_ACTION_DFU_SILICON
-    case "dfu-t2":
-        action = HPM_ACTION_DFU_T2
-    case "reboot":
-        action = HPM_ACTION_REBOOT
-    case "serial":
-        action = HPM_ACTION_SERIAL
-    case "debugusb", "kis":
-        action = HPM_ACTION_DEBUGUSB
-    case "probe":
-        action = HPM_ACTION_PROBE
-    default:
-        print("Unknown command: \(cmd)")
-        return 2
-    }
-
-    var rawResult = hpm_execute_action(action, targetRID)
-    let hpmStatus = withUnsafePointer(to: &rawResult.hpm_status.0) { String(cString: $0) }
-    let hostPlatform = withUnsafePointer(to: &rawResult.host_platform.0) { String(cString: $0) }
-    let message = withUnsafePointer(to: &rawResult.message.0) { String(cString: $0) }
-
-    let out = HelperOutput(
-        statusCode: rawResult.status_code,
-        usedRID: rawResult.used_rid,
-        connected: rawResult.connected,
-        isSource: rawResult.is_source,
-        usedT2Fallback: rawResult.used_t2_fallback,
-        vdmReplyHeaderHex: String(format: "0x%08X", rawResult.vdm_reply_header),
-        hpmStatus: hpmStatus,
-        hostPlatform: hostPlatform,
-        message: message
+    var raw = hpm_execute_action(action, targetRID)
+    let output = HelperOutput(
+        statusCode: raw.status_code,
+        usedRID: raw.used_rid,
+        connected: raw.connected,
+        isSource: raw.is_source,
+        usedT2Fallback: raw.used_t2_fallback,
+        vdmReplyHeaderHex: String(format: "0x%08X", raw.vdm_reply_header),
+        hpmStatus: withUnsafePointer(to: &raw.hpm_status.0) { String(cString: $0) },
+        hostPlatform: withUnsafePointer(to: &raw.host_platform.0) { String(cString: $0) },
+        message: withUnsafePointer(to: &raw.message.0) { String(cString: $0) }
     )
 
     if jsonOutput {
-        let encoder = JSONEncoder()
-        if let data = try? encoder.encode(out), let str = String(data: data, encoding: .utf8) {
-            print(str)
+        if let data = try? JSONEncoder().encode(output), let text = String(data: data, encoding: .utf8) {
+            print(text)
         }
     } else {
-        print("[\(out.statusCode == 0 ? "OK" : "ERR \(out.statusCode)")] \(out.message)")
-        print("Host: \(out.hostPlatform) | RID: \(out.usedRID) | Connected: \(out.connected) | Status: \(out.hpmStatus) | Reply: \(out.vdmReplyHeaderHex)")
+        print("[\(output.statusCode == 0 ? "OK" : "ERR \(output.statusCode)")] \(output.message)")
+        print("Host: \(output.hostPlatform) | RID: \(output.usedRID) | Connected: \(output.connected) | Status: \(output.hpmStatus) | Reply: \(output.vdmReplyHeaderHex)")
     }
 
-    return rawResult.status_code == 0 ? 0 : 1
+    return raw.status_code == 0 ? HelperExit.success : HelperExit.actionFailed
 }
 
 exit(runHelper())

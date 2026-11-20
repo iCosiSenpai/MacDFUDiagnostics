@@ -65,7 +65,12 @@ static bool cf_to_string(CFTypeRef ref, char *buf, size_t buf_len) {
     buf[0] = '\0';
     CFTypeID tid = CFGetTypeID(ref);
     if (tid == CFStringGetTypeID()) {
-        return CFStringGetCString((CFStringRef)ref, buf, (CFIndex)buf_len, kCFStringEncodingUTF8);
+        if (CFStringGetCString((CFStringRef)ref, buf, (CFIndex)buf_len, kCFStringEncodingUTF8)) {
+            return true;
+        }
+        // On failure the buffer contents are unspecified: hand back an empty string instead.
+        buf[0] = '\0';
+        return false;
     } else if (tid == CFDataGetTypeID()) {
         CFIndex len = CFDataGetLength((CFDataRef)ref);
         const uint8_t *ptr = CFDataGetBytePtr((CFDataRef)ref);
@@ -236,7 +241,9 @@ size_t hpm_list_host_ports(HPMHostPortInfo *out_ports, size_t max_ports) {
             snprintf(info->io_path, sizeof(info->io_path), "%s", pathName);
         }
 
-        info->is_dfu_capable = ((uart_mask & (1u << rid_u)) != 0) || (rid_u == 0);
+        // A shift by 32 or more is undefined behaviour, so RIDs outside the mask are simply "not listed".
+        bool in_uart_mask = (rid_u < 32u) && ((uart_mask & (1u << rid_u)) != 0);
+        info->is_dfu_capable = in_uart_mask || (rid_u == 0);
         count++;
         IOObjectRelease(dev);
     }
@@ -328,6 +335,9 @@ static int hpm_command(AppleHPMLib **device, uint64_t chip, uint32_t cmd, const 
 }
 
 static bool hpm_send_vdm(AppleHPMLib **device, uint64_t chip, const uint32_t *vdm_words, size_t word_count, uint32_t *out_reply_hdr) {
+    // A USB-PD VDM carries at most 7 objects (header + 6 VDOs); the 64-byte register holds 1 + 7 * 4 bytes.
+    if (!vdm_words || word_count == 0 || word_count > HPM_MAX_VDM_WORDS) return false;
+
     uint8_t start[64];
     if (hpm_read_reg(device, chip, 0x4d, start) != kIOReturnSuccess) return false;
     uint8_t rxst = start[0];
@@ -375,33 +385,34 @@ HPMExecutionResult hpm_execute_action(HPMActionType action, int32_t target_rid) 
     uint32_t unlock_key = 0;
     if (!hpm_get_host_platform(res.host_platform, sizeof(res.host_platform), &unlock_key)) {
         res.status_code = -1;
-        snprintf(res.message, sizeof(res.message), "Impossibile leggere IOPlatformExpertDevice sull'host.");
+        snprintf(res.message, sizeof(res.message), "Could not read IOPlatformExpertDevice on the host.");
         return res;
     }
 
     if (geteuid() != 0) {
         res.status_code = -2;
-        snprintf(res.message, sizeof(res.message), "Privilegi di root (amministratore) richiesti per comunicare con AppleHPM.");
+        snprintf(res.message, sizeof(res.message), "Root privileges are required to talk to AppleHPM.");
         return res;
     }
 
     CFMutableDictionaryRef matching = IOServiceMatching("AppleHPM");
     if (!matching) {
         res.status_code = -3;
-        snprintf(res.message, sizeof(res.message), "IOServiceMatching(AppleHPM) fallito.");
+        snprintf(res.message, sizeof(res.message), "IOServiceMatching(AppleHPM) failed.");
         return res;
     }
 
     io_iterator_t iter = 0;
     if (IOServiceGetMatchingServices(kIOMainPortDefault, matching, &iter) != KERN_SUCCESS) {
         res.status_code = -4;
-        snprintf(res.message, sizeof(res.message), "Nessun controller AppleHPM trovato (questo Mac host è Apple Silicon?).");
+        snprintf(res.message, sizeof(res.message), "No AppleHPM controller found (is the host an Apple silicon Mac?).");
         return res;
     }
 
     IOCFPlugInInterface **plugin = NULL;
     AppleHPMLib **device = NULL;
     int32_t wanted_rid = target_rid >= 0 ? target_rid : 0;
+    bool in_debug_mode = false;
 
     io_service_t service;
     while ((service = IOIteratorNext(iter)) != 0) {
@@ -439,7 +450,7 @@ HPMExecutionResult hpm_execute_action(HPMActionType action, int32_t target_rid) 
     if (!plugin || !device) {
         res.status_code = -5;
         snprintf(res.message, sizeof(res.message),
-                 "Impossibile aprire il plugin AppleHPMLib per RID=%d.", wanted_rid);
+                 "Could not open the AppleHPMLib plug-in for RID=%d.", wanted_rid);
         return res;
     }
 
@@ -456,12 +467,11 @@ HPMExecutionResult hpm_execute_action(HPMActionType action, int32_t target_rid) 
     }
 
     if (!res.connected && action != HPM_ACTION_PROBE) {
-        IODestroyPlugInInterface(plugin);
         res.status_code = -6;
         snprintf(res.message, sizeof(res.message),
-                 "Nessun dispositivo rilevato sulla porta DFU dell'host (RID=%d). Controlla che il cavo USB-C sia collegato alle porte DFU di entrambi i Mac.",
+                 "Nothing is connected to host port RID=%d. Check that the USB-C cable is plugged into the DFU port of both Macs.",
                  wanted_rid);
-        return res;
+        goto done;
     }
 
     // Unlock ACE controller and enter DBMa mode
@@ -477,11 +487,10 @@ HPMExecutionResult hpm_execute_action(HPMActionType action, int32_t target_rid) 
             // Reset with Gaid and retry LOCK
             hpm_command(device, chip, fourcc_be("Gaid"), NULL, 0);
             if (hpm_command(device, chip, fourcc_be("LOCK"), key_le, 4) != 0) {
-                IODestroyPlugInInterface(plugin);
                 res.status_code = -7;
                 snprintf(res.message, sizeof(res.message),
-                         "Sblocco controller AppleHPM (LOCK) fallito su host %s.", res.host_platform);
-                return res;
+                         "AppleHPM controller unlock (LOCK) failed on host %s.", res.host_platform);
+                goto done;
             }
         }
         uint8_t dbma_on[1] = { 0x01 };
@@ -495,30 +504,30 @@ HPMExecutionResult hpm_execute_action(HPMActionType action, int32_t target_rid) 
         entered_dbma = true;
     }
 
+    in_debug_mode = entered_dbma;
     if (!entered_dbma) {
-        IODestroyPlugInInterface(plugin);
         res.status_code = -8;
         snprintf(res.message, sizeof(res.message),
-                 "Impossibile entrare in modalità debug DBMa (stato attuale: %s).", res.hpm_status);
-        return res;
+                 "Could not enter DBMa debug mode (current state: %s).", res.hpm_status);
+        goto done;
     }
 
     // Perform requested action
     if (action == HPM_ACTION_PROBE) {
         res.status_code = 0;
         snprintf(res.message, sizeof(res.message),
-                 "Probe AppleHPM RID=%d riuscito (Host: %s, Connesso: %s, Ruolo: %s, Stato: %s).",
+                 "AppleHPM probe RID=%d OK (host: %s, connected: %s, role: %s, state: %s).",
                  wanted_rid,
                  res.host_platform,
-                 res.connected ? "SÌ" : "NO",
-                 res.connected ? (res.is_source ? "Source/DFP" : "Sink/UFP") : "Nessuno",
+                 res.connected ? "yes" : "no",
+                 res.connected ? (res.is_source ? "Source/DFP" : "Sink/UFP") : "none",
                  res.hpm_status);
     } else if (action == HPM_ACTION_DFU_AUTO) {
         const uint32_t vdm_silicon[3] = { 0x05ac8012u, 0x00000106u, 0x80010000u };
         if (hpm_send_vdm(device, chip, vdm_silicon, 3, &res.vdm_reply_header)) {
             res.status_code = 0;
             snprintf(res.message, sizeof(res.message),
-                     "Target inviato in modalità DFU con successo (VDM Apple Silicon 0x106 ACK: 0x%08X).",
+                     "Target entered DFU (Apple silicon VDM 0x106, ACK 0x%08X).",
                      res.vdm_reply_header);
         } else {
             // Fallback for Intel T2 Macs: 0x105 with 0x80020000 (PMU Reset + DFU Hold)
@@ -527,12 +536,12 @@ HPMExecutionResult hpm_execute_action(HPMActionType action, int32_t target_rid) 
                 res.status_code = 0;
                 res.used_t2_fallback = true;
                 snprintf(res.message, sizeof(res.message),
-                         "Target inviato in modalità DFU tramite encoding Intel T2 (VDM 0x105 PMU Reset + DFU Hold ACK: 0x%08X).",
+                         "Target entered DFU (Intel T2 VDM 0x105 PMU reset + DFU hold, ACK 0x%08X).",
                          res.vdm_reply_header);
             } else {
                 res.status_code = -9;
                 snprintf(res.message, sizeof(res.message),
-                         "Il Mac target ha rifiutato sia il VDM DFU Apple Silicon (0x106) sia il fallback Intel T2 (0x105/0x80020000). Ultima risposta: 0x%08X.",
+                         "The target refused both the Apple silicon DFU VDM (0x106) and the Intel T2 fallback (0x105/0x80020000). Last reply: 0x%08X.",
                          res.vdm_reply_header);
             }
         }
@@ -541,11 +550,11 @@ HPMExecutionResult hpm_execute_action(HPMActionType action, int32_t target_rid) 
         if (hpm_send_vdm(device, chip, vdm_silicon, 3, &res.vdm_reply_header)) {
             res.status_code = 0;
             snprintf(res.message, sizeof(res.message),
-                     "Target inviato in DFU (VDM Apple Silicon 0x106 ACK: 0x%08X).", res.vdm_reply_header);
+                     "Target entered DFU (Apple silicon VDM 0x106, ACK 0x%08X).", res.vdm_reply_header);
         } else {
             res.status_code = -9;
             snprintf(res.message, sizeof(res.message),
-                     "Comando VDM DFU Apple Silicon (0x106) fallito (risposta: 0x%08X).", res.vdm_reply_header);
+                     "Apple silicon DFU VDM (0x106) failed (reply: 0x%08X).", res.vdm_reply_header);
         }
     } else if (action == HPM_ACTION_DFU_T2) {
         const uint32_t vdm_t2[3] = { 0x05ac8012u, 0x00000105u, 0x80020000u };
@@ -553,22 +562,22 @@ HPMExecutionResult hpm_execute_action(HPMActionType action, int32_t target_rid) 
             res.status_code = 0;
             res.used_t2_fallback = true;
             snprintf(res.message, sizeof(res.message),
-                     "Target inviato in DFU (VDM Intel T2 0x105/0x80020000 ACK: 0x%08X).", res.vdm_reply_header);
+                     "Target entered DFU (Intel T2 VDM 0x105/0x80020000, ACK 0x%08X).", res.vdm_reply_header);
         } else {
             res.status_code = -9;
             snprintf(res.message, sizeof(res.message),
-                     "Comando VDM DFU Intel T2 (0x105/0x80020000) fallito (risposta: 0x%08X).", res.vdm_reply_header);
+                     "Intel T2 DFU VDM (0x105/0x80020000) failed (reply: 0x%08X).", res.vdm_reply_header);
         }
     } else if (action == HPM_ACTION_REBOOT) {
         const uint32_t vdm_reboot[3] = { 0x05ac8012u, 0x00000105u, 0x80000000u };
         if (hpm_send_vdm(device, chip, vdm_reboot, 3, &res.vdm_reply_header)) {
             res.status_code = 0;
             snprintf(res.message, sizeof(res.message),
-                     "Riavvio remoto del Mac target eseguito con successo (VDM 0x105 ACK: 0x%08X).", res.vdm_reply_header);
+                     "Target restarted (VDM 0x105, ACK 0x%08X).", res.vdm_reply_header);
         } else {
             res.status_code = -10;
             snprintf(res.message, sizeof(res.message),
-                     "Riavvio remoto VDM fallito (risposta: 0x%08X).", res.vdm_reply_header);
+                     "Restart VDM failed (reply: 0x%08X).", res.vdm_reply_header);
         }
     } else if (action == HPM_ACTION_SERIAL) {
         const uint32_t vdm_serial[2] = { 0x05ac8012u, 0x01840306u };
@@ -577,33 +586,37 @@ HPMExecutionResult hpm_execute_action(HPMActionType action, int32_t target_rid) 
             if (hpm_command(device, chip, fourcc_be("DVEn"), dven_arg, 4) == 0) {
                 res.status_code = 0;
                 snprintf(res.message, sizeof(res.message),
-                         "Console seriale UART attiva su SBU1/SBU2 (/dev/cu.debug-console @ 115200 8N1). Richiede cavo USB 3.x SuperSpeed/Thunderbolt.");
+                         "UART serial console active on SBU1/SBU2 (/dev/cu.debug-console, 115200 8N1). Needs a full-featured USB 3.x / Thunderbolt cable.");
             } else {
                 res.status_code = -11;
                 snprintf(res.message, sizeof(res.message),
-                         "Target in modalità seriale, ma abilitazione DVEn locale fallita.");
+                         "Target switched to serial mode, but enabling the local DVEn mux failed.");
             }
         } else {
             res.status_code = -11;
             snprintf(res.message, sizeof(res.message),
-                     "Impossibile attivare modalità seriale sul target (risposta: 0x%08X).", res.vdm_reply_header);
+                     "Could not switch the target to serial mode (reply: 0x%08X).", res.vdm_reply_header);
         }
     } else if (action == HPM_ACTION_DEBUGUSB) {
         const uint32_t vdm_kis[2] = { 0x05ac8012u, 0x01824606u };
         if (hpm_send_vdm(device, chip, vdm_kis, 2, &res.vdm_reply_header)) {
             res.status_code = 0;
             snprintf(res.message, sizeof(res.message),
-                     "Target commutato in modalità Debug USB (KIS 05ac:1881, ACK: 0x%08X).", res.vdm_reply_header);
+                     "Target switched to debug USB (KIS 05ac:1881, ACK 0x%08X).", res.vdm_reply_header);
         } else {
             res.status_code = -12;
             snprintf(res.message, sizeof(res.message),
-                     "Commutazione Debug USB (KIS) fallita (risposta: 0x%08X).", res.vdm_reply_header);
+                     "Switching to debug USB (KIS) failed (reply: 0x%08X).", res.vdm_reply_header);
         }
     }
 
-    // Exit DBMa mode cleanly
-    uint8_t dbma_off[1] = { 0x00 };
-    hpm_command(device, chip, fourcc_be("DBMa"), dbma_off, 1);
-    IODestroyPlugInInterface(plugin);
+done:
+    // Never leave the port controller in DBMa debug mode once the command has run.
+    if (in_debug_mode) {
+        uint8_t dbma_off[1] = { 0x00 };
+        hpm_command(device, chip, fourcc_be("DBMa"), dbma_off, 1);
+    }
+    if (device) (*device)->Release(device);
+    if (plugin) IODestroyPlugInInterface(plugin);
     return res;
 }
