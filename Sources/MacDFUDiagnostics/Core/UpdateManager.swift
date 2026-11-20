@@ -301,8 +301,21 @@ final class UpdateManager {
     private func relaunch() {
         let configuration = NSWorkspace.OpenConfiguration()
         configuration.createsNewApplicationInstance = true
-        NSWorkspace.shared.openApplication(at: Bundle.main.bundleURL, configuration: configuration) { _, _ in
-            Task { @MainActor in NSApplication.shared.terminate(nil) }
+        NSWorkspace.shared.openApplication(at: Bundle.main.bundleURL, configuration: configuration) { _, error in
+            Task { @MainActor in
+                if error != nil {
+                    // The new version is installed but did not start. Say so, and let the user open it.
+                    self.state = .failed(nil, message: String(localized: "The update is installed. Quit and open the app again to use it."))
+                    return
+                }
+                // AppKit does not quit an app that is showing a sheet, and the update sheet is still up:
+                // take it down, ask to quit, and do not wait around if that is refused — this copy has
+                // already been replaced on disk and must not outlive its successor.
+                self.state = .idle
+                NSApplication.shared.terminate(nil)
+                try? await Task.sleep(for: .seconds(1))
+                exit(0)
+            }
         }
     }
 }

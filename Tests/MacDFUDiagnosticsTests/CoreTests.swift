@@ -260,3 +260,17 @@ struct CodeTrustTests {
         }
     }
 }
+
+@Suite("Release notes")
+struct ReleaseNotesTests {
+    @Test func headingsAndBulletsAreNotShownAsRawMarkdown() {
+        let text = String(UpdateSheet.formatted("### New\n- One **bold** thing\n> A note").characters)
+        #expect(!text.contains("#"))
+        #expect(!text.contains("**"))
+        #expect(text.contains("New"))
+        #expect(text.contains("•\u{00A0}One bold thing"))
+        #expect(text.contains("A note"))
+        #expect(!text.contains(">"))
+    }
+}
+

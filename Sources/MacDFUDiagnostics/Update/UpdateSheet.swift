@@ -92,9 +92,24 @@ struct UpdateSheet: View {
         }
     }
 
-    /// Release notes are written in Markdown; show the inline formatting and keep the line breaks.
-    private static func formatted(_ notes: String) -> AttributedString {
+    /// Release notes are written in Markdown. Inline formatting is rendered; headings and bullets, which
+    /// the inline parser leaves as raw `###` and `-`, are turned into bold lines and bullet points.
+    nonisolated static func formatted(_ notes: String) -> AttributedString {
+        let lines = notes.split(separator: "\n", omittingEmptySubsequences: false).map { line -> String in
+            let text = line.trimmingCharacters(in: .whitespaces)
+            if let heading = text.firstMatch(of: /^#{1,6}\s+(.+)$/) {
+                return "**\(heading.1.replacing("**", with: ""))**"
+            }
+            if let bullet = text.firstMatch(of: /^[-*]\s+(.+)$/) {
+                return "•\u{00A0}\(bullet.1)"
+            }
+            if let quote = text.firstMatch(of: /^>\s*(.*)$/) {
+                return String(quote.1)
+            }
+            return String(line)
+        }
         let options = AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)
-        return (try? AttributedString(markdown: notes, options: options)) ?? AttributedString(notes)
+        let prepared = lines.joined(separator: "\n")
+        return (try? AttributedString(markdown: prepared, options: options)) ?? AttributedString(notes)
     }
 }

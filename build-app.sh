@@ -7,8 +7,8 @@
 # The version lives here and nowhere else.
 set -euo pipefail
 
-VERSION="${VERSION:-2.0.0}"
-BUILD="${BUILD:-5}"
+VERSION="${VERSION:-2.0.1}"
+BUILD="${BUILD:-6}"
 
 cd "${0:A:h}"
 APP="MacDFUDiagnostics.app"

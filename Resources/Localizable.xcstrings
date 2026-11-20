@@ -2501,6 +2501,16 @@
         }
       }
     },
+    "The update is installed. Quit and open the app again to use it." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’aggiornamento è installato. Esci e riapri l’app per usarlo."
+          }
+        }
+      }
+    },
     "This Mac" : {
       "localizations" : {
         "it" : {

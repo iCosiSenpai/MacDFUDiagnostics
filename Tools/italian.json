@@ -249,6 +249,7 @@
   "The screen stays blank, and the Mac appears here.": "Lo schermo resta nero e il Mac compare qui.",
   "The serial console couldn't be opened.": "Impossibile aprire la console seriale.",
   "The serial console couldn't be started.": "Impossibile avviare la console seriale.",
+  "The update is installed. Quit and open the app again to use it.": "L’aggiornamento è installato. Esci e riapri l’app per usarlo.",
   "This Mac": "Questo Mac",
   "This copy can't update itself. Download the new version from GitHub.": "Questa copia non può aggiornarsi da sola. Scarica la nuova versione da GitHub.",
   "This folder can't be written to. Download the new version from GitHub.": "Impossibile scrivere in questa cartella. Scarica la nuova versione da GitHub.",
