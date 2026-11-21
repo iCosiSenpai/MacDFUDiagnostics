@@ -7,6 +7,9 @@ struct MacDFUStudioApp: App {
     @State private var preferences = Preferences()
     @State private var updater = UpdateManager()
     @State private var navigation = Navigation()
+    @State private var readiness = Readiness()
+    // A demo keeps its history in memory: simulated work has no place in the real record.
+    @State private var history = History(fileURL: LaunchOptions.demo == nil ? History.defaultFileURL : nil)
 
     var body: some Scene {
         // One window: the app drives one piece of hardware, and two windows would only disagree.
@@ -17,10 +20,18 @@ struct MacDFUStudioApp: App {
                 .environment(preferences)
                 .environment(updater)
                 .environment(navigation)
+                .environment(readiness)
+                .environment(history)
                 .language(preferences.language)
                 .onAppear {
                     appDelegate.engine = engine
                     preferences.applyAppearance()
+                    readiness.start()
+                    engine.onFinish = { record in
+                        history.add(record)
+                        guard preferences.notifyWhenDone, record.kind == .revive || record.kind == .restore else { return }
+                        readiness.notify(title: Self.notificationTitle(for: record), body: record.device)
+                    }
                 }
         }
         .defaultSize(width: 1040, height: 680)
@@ -31,10 +42,25 @@ struct MacDFUStudioApp: App {
 
         Settings {
             SettingsView()
+                .environment(engine)
+                .environment(readiness)
                 .environment(preferences)
                 .environment(updater)
                 .environment(navigation)
                 .language(preferences.language)
+        }
+    }
+}
+
+extension MacDFUStudioApp {
+    /// "Restore complete", "Revive failed"… for the notification that tells an absent user how it went.
+    static func notificationTitle(for record: OperationRecord) -> String {
+        switch (record.kind, record.outcome) {
+        case (.restore, .success): String(localized: "Restore complete.")
+        case (.restore, .failure): String(localized: "Restore failed.")
+        case (.revive, .success): String(localized: "Revive complete.")
+        case (.revive, .failure): String(localized: "Revive failed.")
+        default: String(localized: "Stopped.")
         }
     }
 }

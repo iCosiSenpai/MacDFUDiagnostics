@@ -6,6 +6,7 @@ struct RootView: View {
     @Environment(Preferences.self) private var preferences
     @Environment(UpdateManager.self) private var updater
     @Environment(Navigation.self) private var navigation
+    @Environment(Readiness.self) private var readiness
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.openSettings) private var openSettings
 
@@ -42,6 +43,14 @@ struct RootView: View {
             UpdateSheet(release: release)
                 .chosenLanguage()
         }
+        .sheet(isPresented: $navigation.showsWelcome) {
+            WelcomeSheet()
+                .chosenLanguage()
+        }
+        // The Dock shows how far a revive or a restore is, for whoever went to do something else.
+        .onChange(of: engine.operation?.progress.map { Int(($0 * 100).rounded()) }) { _, percent in
+            NSApplication.shared.dockTile.badgeLabel = percent.map { "\($0)%" }
+        }
         .environment(\.effects, effects)
         // With motion off, nothing below this point animates: explicit and implicit animations alike.
         .transaction { transaction in
@@ -58,16 +67,21 @@ struct RootView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             engine.refreshHardware()
+            Task { await readiness.refresh() }
         }
         .task {
             engine.start()
             switch LaunchOptions.sheet {
             case "update":
                 updater.presentSample()
-            case "settings", "effects", "advanced", "updates":
+            case "settings", "effects", "advanced", "updates", "about":
                 navigation.settingsTab = SettingsTab(rawValue: LaunchOptions.sheet ?? "") ?? .general
                 openSettings()
             default:
+                // The first launch says what the app needs before anything else is put in front of it.
+                if !preferences.hasSeenWelcome, engine.demo == nil, LaunchOptions.sheet == nil {
+                    navigation.showsWelcome = true
+                }
                 if updater.canSelfUpdate, engine.demo == nil {
                     await updater.check(quietly: true)
                 }
@@ -78,7 +92,7 @@ struct RootView: View {
     /// The update sheet waits its turn: it never appears on top of work in progress.
     private var updateBinding: Binding<AppRelease?> {
         Binding(
-            get: { engine.isBusy ? nil : updater.pendingRelease },
+            get: { engine.isBusy || navigation.showsWelcome ? nil : updater.pendingRelease },
             set: { _ in }
         )
     }

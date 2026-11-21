@@ -9,6 +9,7 @@ struct RestoreSheet: View {
     let device: TargetDevice
 
     @Environment(DiagnosticsEngine.self) private var engine
+    @Environment(Readiness.self) private var readiness
     @Environment(\.dismiss) private var dismiss
     @State private var source: Source = .latest
     @State private var isChoosingFile = false
@@ -62,6 +63,23 @@ struct RestoreSheet: View {
                 note("Apple suggests 60 GB free on this Mac. There is \(ByteCountFormatter.string(fromByteCount: free, countStyle: .file)).", symbol: "internaldrive")
             }
 
+            if readiness.isOnBattery {
+                note("This Mac is running on battery. Plug it in before you start.", symbol: "battery.50percent")
+            }
+            if !readiness.isOnline, source == .latest || device.isIntelT2 {
+                note("This Mac is offline. The firmware is downloaded from Apple.", symbol: "wifi.slash")
+            }
+            if !device.isIntelT2, source == .file {
+                Button {
+                    Self.openFirmwareFinder()
+                } label: {
+                    Label("Find firmware files with IPSW Downloader Plus", systemImage: "arrow.up.right.square")
+                        .font(.callout)
+                }
+                .buttonStyle(.link)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
             HStack(spacing: Metrics.compact) {
                 Button("Cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
@@ -86,6 +104,15 @@ struct RestoreSheet: View {
                 engine.firmwareURL = url
                 source = .file
             }
+        }
+    }
+
+    /// Opens the sibling app that downloads firmware files, or its page when it is not installed.
+    private static func openFirmwareFinder() {
+        if let app = NSWorkspace.shared.urlForApplication(withBundleIdentifier: Links.ipswDownloaderBundleID) {
+            NSWorkspace.shared.openApplication(at: app, configuration: NSWorkspace.OpenConfiguration())
+        } else {
+            NSWorkspace.shared.open(Links.ipswDownloader)
         }
     }
 

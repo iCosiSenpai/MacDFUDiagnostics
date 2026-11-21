@@ -2,6 +2,7 @@ import AppKit
 import CHPMBridge
 import Foundation
 import Observation
+import UniformTypeIdentifiers
 
 /// Everything the hardware scan learns in one pass. Built off the main thread, applied on it.
 struct HardwareSnapshot: Sendable {
@@ -49,6 +50,10 @@ final class DiagnosticsEngine {
     @ObservationIgnored private var connectedRIDs: Set<Int32> = []
     @ObservationIgnored private var activeProcess: StreamingProcess?
     @ObservationIgnored private var stopRequested = false
+
+    /// Called when an operation worth remembering ends: the history keeps it, and a notification
+    /// says so if the app is not in front.
+    @ObservationIgnored var onFinish: ((OperationRecord) -> Void)?
 
     /// Set when the app was launched with `-demo`: the hardware is simulated and nothing real is touched.
     let demo: DemoScenario?
@@ -289,6 +294,8 @@ final class DiagnosticsEngine {
         }
 
         let rid = selectedPortRID
+        let started = Date()
+        let target = focusedDevice
         let outcome = await PrivilegedHelper.run(
             command,
             rid: rid,
@@ -304,6 +311,7 @@ final class DiagnosticsEngine {
             } else {
                 report(.failure, Self.failureMessage(forStatus: reply.statusCode), detail: detail)
             }
+            finished(command, succeeded: reply.statusCode == 0, on: target, since: started, detail: reply.message)
         case .cancelled:
             record(.info, "Cancelled.")
         case .refused:
@@ -315,6 +323,30 @@ final class DiagnosticsEngine {
         // The target needs a moment to drop off the bus and come back in its new mode.
         try? await Task.sleep(for: .seconds(1.2))
         refreshHardware()
+    }
+
+    /// Hands a finished cable command to whoever keeps the history. Only the two that change the
+    /// state of the other Mac are worth a line there.
+    private func finished(_ command: VDMCommand, succeeded: Bool, on device: TargetDevice?, since started: Date, detail: String?) {
+        let kind: OperationRecord.Kind
+        switch command {
+        case .dfu, .dfuSilicon, .dfuT2: kind = .enterDFU
+        case .restart: kind = .restart
+        case .serial, .debugUSB, .probe: return
+        }
+        onFinish?(OperationRecord(
+            kind: kind, outcome: succeeded ? .success : .failure,
+            device: device?.title ?? "Mac", ecid: device?.ecid,
+            duration: Date().timeIntervalSince(started), detail: detail
+        ))
+    }
+
+    private func finished(_ kind: Operation.Kind, outcome: OperationRecord.Outcome, on device: TargetDevice?, since started: Date, detail: String?) {
+        onFinish?(OperationRecord(
+            kind: kind == .restore ? .restore : .revive, outcome: outcome,
+            device: device?.title ?? "Mac", ecid: device?.ecid,
+            duration: Date().timeIntervalSince(started), detail: detail
+        ))
     }
 
     private static func successMessage(for command: VDMCommand, reply: PrivilegedHelper.Reply) -> LocalizedStringResource {
@@ -407,6 +439,7 @@ final class DiagnosticsEngine {
 
         operation = Operation(kind: kind, progress: nil)
         stopRequested = false
+        let started = Date()
         record(.info, kind == .restore ? "Restore started." : "Revive started.", detail: "cfgutil " + arguments.joined(separator: " "))
 
         // Sleeping in the middle of a firmware write is the one thing that must not happen.
@@ -432,6 +465,9 @@ final class DiagnosticsEngine {
         ProcessInfo.processInfo.endActivity(awake)
         activeProcess = nil
         operation = nil
+
+        finished(kind, outcome: stopRequested ? .stopped : (status == 0 ? .success : .failure), on: device, since: started,
+                 detail: status == 0 || stopRequested ? nil : "cfgutil exit \(status)")
 
         if stopRequested {
             report(.warning, "Stopped.")
@@ -716,6 +752,20 @@ final class DiagnosticsEngine {
         return lines.joined(separator: "\n")
     }
 
+    /// Writes the report to a file the user chooses: easier to attach to a ticket than a clipboard.
+    func saveDiagnosticReport() {
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [.plainText]
+        panel.nameFieldStringValue = "Mac DFU Studio report \(Date().formatted(.iso8601.year().month().day())).txt"
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do {
+            try diagnosticReport().write(to: url, atomically: true, encoding: .utf8)
+            report(.success, "Report saved.")
+        } catch {
+            report(.failure, "The report couldn't be saved.", detail: error.localizedDescription)
+        }
+    }
+
     func copyDiagnosticReport() {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(diagnosticReport(), forType: .string)
@@ -760,6 +810,7 @@ final class DiagnosticsEngine {
         )
         successes += 1
         report(.success, Self.successMessage(for: command, reply: reply), detail: "Simulated")
+        finished(command, succeeded: true, on: focusedDevice, since: Date().addingTimeInterval(-1.4), detail: "Simulated")
         switch command {
         case .dfu, .dfuSilicon, .dfuT2:
             devices = DemoScenario.dfu.devices
@@ -774,6 +825,8 @@ final class DiagnosticsEngine {
     private func simulateFirmware(_ kind: Operation.Kind) async {
         operation = Operation(kind: kind, progress: 0)
         stopRequested = false
+        let started = Date()
+        let target = focusedDevice
         record(.info, kind == .restore ? "Restore started." : "Revive started.", detail: "Simulated")
 
         let steps = ["Downloading firmware", "Verifying", "Preparing the Mac", "Installing", "Finishing"]
@@ -785,6 +838,7 @@ final class DiagnosticsEngine {
             operation?.detail = steps[min(steps.count - 1, Int(fraction * Double(steps.count)))]
         }
         operation = nil
+        finished(kind, outcome: stopRequested ? .stopped : .success, on: target, since: started, detail: "Simulated")
 
         if stopRequested {
             report(.warning, "Stopped.")

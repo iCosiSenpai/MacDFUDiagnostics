@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// The trailing panel: who the connected Mac is, and what has happened so far.
 struct InspectorView: View {
@@ -11,6 +12,7 @@ struct InspectorView: View {
             Picker("View", selection: $navigation.inspectorTab) {
                 Text("Device").tag(InspectorTab.device)
                 Text("Activity").tag(InspectorTab.activity)
+                Text("History").tag(InspectorTab.history)
             }
             .pickerStyle(.segmented)
             .labelsHidden()
@@ -19,6 +21,7 @@ struct InspectorView: View {
             switch navigation.inspectorTab {
             case .device: DeviceDetails()
             case .activity: ActivityList()
+            case .history: HistoryList()
             }
         }
     }
@@ -53,7 +56,16 @@ private struct DeviceDetails: View {
                 Section("USB") {
                     row("Device", device.usbID)
                     row("Location", String(format: "0x%08X", device.locationID))
-                    row("Port", engine.ports.first { $0.rid == device.hostPortRID }?.displayName)
+                    if let port = engine.ports.first(where: { $0.rid == device.hostPortRID }) {
+                        LabeledContent("Port") {
+                            Label {
+                                Text(port.title)
+                            } icon: {
+                                Image(systemName: port.symbol)
+                            }
+                            .font(.callout)
+                        }
+                    }
                 }
                 if let layout = device.model?.port {
                     Section("DFU Port") {
@@ -119,6 +131,106 @@ private struct ActivityList: View {
             .font(.callout)
             .padding(Metrics.compact)
         }
+    }
+}
+
+// MARK: - History
+
+/// What was done on other days: every revive, restore and trip into DFU, newest first.
+private struct HistoryList: View {
+    @Environment(DiagnosticsEngine.self) private var engine
+    @Environment(History.self) private var history
+    @State private var isConfirmingClear = false
+
+    var body: some View {
+        VStack(spacing: 0) {
+            if history.records.isEmpty {
+                ContentUnavailableView {
+                    Label("No History", systemImage: "clock.arrow.circlepath")
+                } description: {
+                    Text("Revives, restores and trips into DFU are kept here, on this Mac only.")
+                }
+            } else {
+                List(history.records.reversed()) { record in
+                    HistoryRow(record: record)
+                        .listRowSeparator(.hidden)
+                }
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+            }
+
+            Divider()
+            HStack {
+                Button("Export…", systemImage: "square.and.arrow.up") {
+                    export()
+                }
+                Spacer()
+                Button("Clear", systemImage: "trash") {
+                    isConfirmingClear = true
+                }
+            }
+            .disabled(history.records.isEmpty)
+            .buttonStyle(.borderless)
+            .labelStyle(.titleAndIcon)
+            .font(.callout)
+            .padding(Metrics.compact)
+        }
+        .confirmationDialog("Clear the history?", isPresented: $isConfirmingClear) {
+            Button("Clear", role: .destructive) { history.clear() }
+        } message: {
+            Text("This can't be undone.")
+        }
+    }
+
+    private func export() {
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [.commaSeparatedText]
+        panel.nameFieldStringValue = "Mac DFU Studio history.csv"
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do {
+            try history.csv().write(to: url, atomically: true, encoding: .utf8)
+            engine.report(.success, "History exported.")
+        } catch {
+            engine.report(.failure, "The history couldn't be exported.", detail: error.localizedDescription)
+        }
+    }
+}
+
+private struct HistoryRow: View {
+    let record: OperationRecord
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: Metrics.tight) {
+            Image(systemName: record.outcome.symbol)
+                .font(.callout)
+                .foregroundStyle(record.outcome.tint)
+                .frame(width: 16)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(record.kind.label)
+                    .font(.callout.weight(.medium))
+                Text(verbatim: record.device)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                if let ecid = record.ecid {
+                    Text(verbatim: ecid)
+                        .font(.caption.monospaced())
+                        .foregroundStyle(.secondary)
+                        .textSelection(.enabled)
+                }
+                HStack(spacing: 6) {
+                    Text(record.date, format: .dateTime.day().month().year().hour().minute())
+                    if record.duration >= 1 {
+                        Text(verbatim: "·")
+                        Text(Duration.seconds(record.duration.rounded()), format: .units(allowed: [.hours, .minutes, .seconds], width: .narrow))
+                    }
+                }
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+            }
+        }
+        .padding(.vertical, 2)
+        .accessibilityElement(children: .combine)
     }
 }
 

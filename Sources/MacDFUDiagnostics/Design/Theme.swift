@@ -133,3 +133,34 @@ extension Operation.Kind {
         }
     }
 }
+
+// MARK: - History
+
+extension OperationRecord.Kind {
+    var label: LocalizedStringResource {
+        switch self {
+        case .enterDFU: "Entered DFU"
+        case .restart: "Restart"
+        case .revive: "Revive"
+        case .restore: "Restore"
+        }
+    }
+}
+
+extension OperationRecord.Outcome {
+    var symbol: String {
+        switch self {
+        case .success: "checkmark.circle.fill"
+        case .failure: "xmark.circle.fill"
+        case .stopped: "stop.circle.fill"
+        }
+    }
+
+    var tint: Color {
+        switch self {
+        case .success: .green
+        case .failure: .red
+        case .stopped: .orange
+        }
+    }
+}

@@ -60,6 +60,8 @@ The app is signed with a Developer ID and notarized by Apple, and it keeps itsel
 - **Knows what is connected.** DFU, recovery, a running Mac, a restore in progress, a cable that cannot carry DFU: each state is recognised the moment the cable goes in, and the screen changes with it.
 - **Finds the port.** A drawing of the right port for this Mac and for the other one, covering 86 models, including the ones where Apple moved it.
 - **Another Mac as a disk.** Step-by-step guides for Target Disk Mode (Intel) and Share Disk (Apple silicon), a read-only disk check, SMART status, safe eject, and shortcuts to Migration Assistant and Disk Utility.
+- **Remembers what it did.** Every revive, restore and trip into DFU goes into a history kept on this Mac, which you can export as CSV. A notification says how a long restore ended, and the Dock icon shows how far it is.
+- **Says what it needs.** A check on first launch, and Settings › Advanced afterwards, list the requirements with their state: notifications, an administrator account, the signed helper, a DFU port, Apple Configurator, an internet connection.
 - **For the stubborn cases.** A guide to entering DFU by hand, restart over the cable, a port test, the serial console and debug USB — tucked away in one menu.
 
 ## A look around
@@ -86,7 +88,7 @@ The app is signed with a Developer ID and notarized by Apple, and it keeps itsel
 
 ### Made to feel like a Mac app
 
-One window, a sidebar, an inspector, a real Settings window (⌘,) and a full menu bar. Light and dark. English and Italian, switchable live. VoiceOver labels throughout.
+One window, a sidebar, an inspector with the device, the activity and the history, a real Settings window (⌘,) and a full menu bar. Light and dark. English and Italian, switchable live. VoiceOver labels throughout.
 
 The background is a Metal shader that takes the colour of the current state; a ripple runs through it when a Mac arrives. **All of it can be turned off** — in Settings › Effects, or with View › Reduce Effects (⌃⌘E) — and it follows *Reduce Motion* and *Reduce Transparency* on its own.
 
@@ -123,7 +125,7 @@ This app asks for an administrator password and can erase a computer. It is buil
 - **The root helper cannot be swapped.** Only the helper inside the app is ever used. Before it runs as root it is copied to a directory that only root can write to, and it is that copy whose signature is checked and that is executed.
 - **Nothing is passed through a shell that could be re-read as a command.** Tools are launched with argument lists; the one script that must exist is quoted and unit-tested against hostile paths.
 - **What a device says about itself is not trusted.** Identifiers read from USB are validated before they are shown, logged or handed to another tool.
-- **No telemetry.** The only network request the app makes itself is the update check to GitHub.
+- **No telemetry.** The only network request the app makes itself is the update check to GitHub. The history of operations is a file on your Mac, and Clear deletes it.
 
 ## Under the hood
 
@@ -156,9 +158,11 @@ open -n /Applications/MacDFUDiagnostics.app --args -demo tour
 The source is published so it can be read and audited; see the [license](#license) for what that does and does not allow.
 
 ```bash
-./build-app.sh          # builds MacDFUDiagnostics.app, ad-hoc signed
-swift test              # unit tests
-Tools/sync-strings.sh   # refreshes the string catalog after changing text
+./build-app.sh               # builds MacDFUDiagnostics.app, ad-hoc signed
+swift test                   # unit tests
+Tools/sync-strings.sh        # refreshes the string catalog after changing text
+scripts/capture-screens.sh   # retakes the screenshots, from the demo mode
+scripts/release.sh           # tests, signs, notarizes, publishes, and updates the website
 ```
 
 Requires Xcode 26 or later, with the Metal toolchain installed.
@@ -166,6 +170,8 @@ Requires Xcode 26 or later, with the Metal toolchain installed.
 ## Credits
 
 The `AppleHPMLib` interface was worked out by the [Asahi Linux](https://github.com/AsahiLinux/macvdmtool) project and by [osy](https://github.com/osy/ThunderboltPatcher); the Intel T2 message comes from the research in [restorekit](https://github.com/fcjr/restorekit). Details are in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+
+The icon's artwork was generated with Google Gemini from a written brief; `Tools/GenerateIcon.swift` turns it into the app icon.
 
 The procedures follow Apple's documentation: [How to revive or restore Mac firmware](https://support.apple.com/108900), [Identify the DFU port](https://support.apple.com/120694), and the Mac User Guide on Target Disk Mode and Share Disk.
 

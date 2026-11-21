@@ -274,3 +274,92 @@ struct ReleaseNotesTests {
     }
 }
 
+
+// MARK: - History
+
+@Suite("History")
+@MainActor
+struct HistoryTests {
+    private func record(_ device: String, detail: String? = nil) -> OperationRecord {
+        OperationRecord(kind: .revive, outcome: .success, device: device, ecid: "0x001A2B3C4D5E6F70", duration: 61.4, detail: detail)
+    }
+
+    @Test("Records survive a relaunch, and Clear removes the file")
+    func persistence() throws {
+        let file = FileManager.default.temporaryDirectory.appending(path: "history-\(UUID().uuidString)/History.json")
+        defer { try? FileManager.default.removeItem(at: file.deletingLastPathComponent()) }
+
+        let first = History(fileURL: file)
+        first.add(record("MacBook Pro (14-inch, M4 Pro, Nov 2024)"))
+        // Dates are stored to the second, so the comparison is on what identifies a record.
+        let reloaded = History(fileURL: file).records
+        #expect(reloaded.map(\.id) == first.records.map(\.id))
+        #expect(reloaded.first?.device == "MacBook Pro (14-inch, M4 Pro, Nov 2024)")
+        #expect(reloaded.first?.ecid == "0x001A2B3C4D5E6F70")
+
+        first.clear()
+        #expect(!FileManager.default.fileExists(atPath: file.path))
+        #expect(History(fileURL: file).records.isEmpty)
+    }
+
+    @Test("A history kept in memory writes nothing")
+    func inMemory() {
+        let history = History(fileURL: nil)
+        history.add(record("Mac"))
+        #expect(history.records.count == 1)
+    }
+
+    @Test("The export quotes what needs quoting")
+    func csvQuoting() {
+        #expect(History.csvField("plain") == "plain")
+        #expect(History.csvField("MacBook Pro (14-inch, M4)") == "\"MacBook Pro (14-inch, M4)\"")
+        #expect(History.csvField("say \"hi\"") == "\"say \"\"hi\"\"\"")
+    }
+
+    @Test("A device cannot smuggle a formula into the spreadsheet", arguments: ["=HYPERLINK(\"http://x\")", "+1", "-1", "@SUM(A1)"])
+    func csvFormula(text: String) {
+        #expect(History.csvField(text).trimmingPrefix("\"").hasPrefix("'"))
+    }
+
+    @Test("The export has one line per record, after the header")
+    func csvShape() {
+        let history = History(fileURL: nil)
+        history.add(record("Mac mini (2024)", detail: "line one\nline two"))
+        history.add(record("iMac"))
+        let csv = history.csv()
+        #expect(csv.hasPrefix("date,operation,outcome,device,ecid,duration_seconds,detail\n"))
+        #expect(csv.contains(",revive,success,Mac mini (2024),0x001A2B3C4D5E6F70,61,\"line one\nline two\"\n"))
+        #expect(csv.hasSuffix(",revive,success,iMac,0x001A2B3C4D5E6F70,61,\n"))
+    }
+}
+
+// MARK: - Ports
+
+@Suite("Host ports")
+struct HostPortTests {
+    private func port(_ name: String, dfu: Bool = false) -> HostPort {
+        HostPort(rid: 0, portNumber: 1, locationBase: 0, isDFUCapable: dfu, name: name)
+    }
+
+    private func english(_ resource: LocalizedStringResource) -> String {
+        var resource = resource
+        resource.locale = Locale(identifier: "en")
+        return String(localized: resource)
+    }
+
+    @Test("A position is said in words", arguments: [("left-front", "Left, front"), ("LEFT_BACK", "Left, back"), ("right-middle", "Right, middle")])
+    func knownNames(name: String, expected: String) {
+        #expect(english(port(name).title) == expected)
+    }
+
+    @Test("A name that is not a position is shown as the system gives it")
+    func unknownName() {
+        #expect(english(port("usb-c-port@3").title) == "Usb C Port@3")
+    }
+
+    @Test("Only the DFU port carries the bolt")
+    func symbol() {
+        #expect(port("left-front", dfu: true).symbol == "bolt.fill")
+        #expect(port("left-back").symbol == "cable.connector")
+    }
+}

@@ -141,8 +141,10 @@ private struct Headline: View {
 private struct ActionBar: View {
     @Environment(DiagnosticsEngine.self) private var engine
     @Environment(Navigation.self) private var navigation
+    @Environment(Readiness.self) private var readiness
     @Environment(\.openURL) private var openURL
     @State private var isConfirmingStop = false
+    @State private var deviceToRevive: TargetDevice?
 
     var body: some View {
         GlassGroup(spacing: Metrics.compact) {
@@ -179,6 +181,21 @@ private struct ActionBar: View {
         } message: {
             Text("A Mac stopped half-way may not start until it is restored.")
         }
+        .confirmationDialog("Revive anyway?", isPresented: revivePrompt, presenting: deviceToRevive) { device in
+            Button("Revive") {
+                Task { await engine.revive(device) }
+            }
+        } message: { _ in
+            if !readiness.isOnline {
+                Text("This Mac is offline. A revive downloads the firmware from Apple.")
+            } else {
+                Text("This Mac is running on battery. Plug it in: losing power half-way can leave the other Mac unable to start.")
+            }
+        }
+    }
+
+    private var revivePrompt: Binding<Bool> {
+        Binding(get: { deviceToRevive != nil }, set: { if !$0 { deviceToRevive = nil } })
     }
 
     @ViewBuilder
@@ -191,7 +208,12 @@ private struct ActionBar: View {
             .help("Reviving and restoring use Apple Configurator")
         } else {
             Button("Revive", systemImage: "arrow.triangle.2.circlepath") {
-                Task { await engine.revive(device) }
+                // Nothing wrong with this Mac: go. On battery or offline: say so first.
+                if engine.demo == nil, readiness.isOnBattery || !readiness.isOnline {
+                    deviceToRevive = device
+                } else {
+                    Task { await engine.revive(device) }
+                }
             }
             .primaryActionStyle()
             .keyboardShortcut(.defaultAction)
@@ -258,29 +280,71 @@ struct ConnectToolbar: ToolbarContent {
     @Environment(DiagnosticsEngine.self) private var engine
 
     var body: some ToolbarContent {
-        @Bindable var engine = engine
-
-        ToolbarItem {
-            if engine.ports.count > 1 {
-                Picker("Port", selection: $engine.selectedPortRID) {
-                    ForEach(engine.ports) { port in
-                        Text(verbatim: port.displayName).tag(port.rid)
-                    }
-                }
-                .pickerStyle(.menu)
-                .help("The port on this Mac that commands are sent through")
+        // Leading: which port of this Mac the commands leave from. Only worth showing when there is a choice.
+        if engine.ports.count > 1 {
+            ToolbarItem(placement: .navigation) {
+                PortMenu()
             }
         }
 
-        ToolbarItem {
-            Menu("More", systemImage: "ellipsis") {
-                DeviceMenuItems()
+        // Everything after this sits at the trailing edge of the window.
+        if #available(macOS 26, *) {
+            ToolbarSpacer(.flexible)
+        } else {
+            ToolbarItem {
+                Spacer()
             }
-            .menuIndicator(.hidden)
-            .help("More actions")
+        }
+
+        // Trailing: the less common actions, then the inspector, each in a capsule of its own.
+        ToolbarItem(placement: .primaryAction) {
+            Menu {
+                DeviceMenuItems()
+            } label: {
+                Label("Tools", systemImage: "wrench.and.screwdriver")
+            }
+            .labelStyle(.titleAndIcon)
+            .help("Restart, test the port, enter DFU by hand, and more")
+        }
+
+        if #available(macOS 26, *) {
+            ToolbarSpacer(.fixed, placement: .primaryAction)
         }
 
         InspectorToggle()
+    }
+}
+
+/// The port of this Mac that commands are sent through: a bolt when it is the DFU port, and its
+/// position in words.
+private struct PortMenu: View {
+    @Environment(DiagnosticsEngine.self) private var engine
+
+    var body: some View {
+        @Bindable var engine = engine
+
+        Menu {
+            Picker("Send commands through", selection: $engine.selectedPortRID) {
+                ForEach(engine.ports) { port in
+                    Label {
+                        Text(port.title)
+                    } icon: {
+                        Image(systemName: port.symbol)
+                    }
+                    .tag(port.rid)
+                }
+            }
+            .pickerStyle(.inline)
+        } label: {
+            Label {
+                Text(engine.selectedPort?.title ?? "Port")
+            } icon: {
+                Image(systemName: engine.selectedPort?.symbol ?? "cable.connector")
+            }
+        }
+        .labelStyle(.titleAndIcon)
+        .help("The port on this Mac that commands are sent through. A bolt marks its DFU port.")
+        .accessibilityLabel("Port on this Mac")
     }
 }
 
@@ -289,7 +353,7 @@ struct InspectorToggle: ToolbarContent {
     @Environment(Navigation.self) private var navigation
 
     var body: some ToolbarContent {
-        ToolbarItem {
+        ToolbarItem(placement: .primaryAction) {
             Button("Inspector", systemImage: "sidebar.trailing") {
                 navigation.showsInspector.toggle()
             }
@@ -299,10 +363,27 @@ struct InspectorToggle: ToolbarContent {
 }
 
 extension HostPort {
-    /// `left-back` → "Left Back · DFU".
-    var displayName: String {
-        let readable = name.replacing("-", with: " ").replacing("_", with: " ").capitalized
-        return isDFUCapable ? "\(readable) · DFU" : readable
+    /// Where the port is, in words: the system calls it `left-back`, people call it "Left, back".
+    /// A name that is not a position is shown as the system gives it.
+    var title: LocalizedStringResource {
+        switch name.lowercased().replacing("_", with: "-") {
+        case "left-front": "Left, front"
+        case "left-back": "Left, back"
+        case "left-middle": "Left, middle"
+        case "right-front": "Right, front"
+        case "right-back": "Right, back"
+        case "right-middle": "Right, middle"
+        case "left": "Left"
+        case "right": "Right"
+        case "front": "Front"
+        case "back": "Back"
+        default: LocalizedStringResource(String.LocalizationValue(name.replacing("-", with: " ").replacing("_", with: " ").capitalized))
+        }
+    }
+
+    /// A bolt for the port that can send DFU requests, a plain connector for the others.
+    var symbol: String {
+        isDFUCapable ? "bolt.fill" : "cable.connector"
     }
 }
 
@@ -364,6 +445,10 @@ struct DeviceMenuItems: View {
                 engine.copyDiagnosticReport()
             }
             .keyboardShortcut("c", modifiers: [.command, .shift])
+
+            Button("Save Diagnostic Report…", systemImage: "square.and.arrow.down") {
+                engine.saveDiagnosticReport()
+            }
         }
     }
 }

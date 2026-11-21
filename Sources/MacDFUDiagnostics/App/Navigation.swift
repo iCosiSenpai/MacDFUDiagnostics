@@ -28,6 +28,7 @@ enum AppSection: String, CaseIterable, Identifiable {
 enum InspectorTab: String, CaseIterable, Identifiable {
     case device
     case activity
+    case history
 
     var id: String { rawValue }
 }
@@ -42,6 +43,7 @@ final class Navigation {
     var showsRestoreSheet = LaunchOptions.sheet == "restore"
     var showsPortGuide = false
     var showsManualDFU = LaunchOptions.sheet == "manual"
+    var showsWelcome = LaunchOptions.sheet == "welcome"
     var settingsTab: SettingsTab = .general
 
     func showActivity() {

@@ -9,11 +9,14 @@ struct AppCommands: Commands {
 
     @Environment(\.openSettings) private var openSettings
 
-    private static let dfuGuide = URL(string: "https://support.apple.com/120694")!
-    private static let reviveGuide = URL(string: "https://support.apple.com/108900")!
-    private static let project = URL(string: "https://github.com/iCosiSenpai/MacDFUDiagnostics")!
-
     var body: some Commands {
+        CommandGroup(replacing: .appInfo) {
+            Button("About Mac DFU Studio") {
+                navigation.settingsTab = .about
+                openSettings()
+            }
+        }
+
         CommandGroup(after: .appInfo) {
             Button("Check for Updates…") {
                 navigation.settingsTab = .updates
@@ -95,9 +98,15 @@ struct AppCommands: Commands {
                 navigation.showsPortGuide = true
             }
             Divider()
-            Link("Apple: DFU Ports", destination: Self.dfuGuide)
-            Link("Apple: Revive or Restore a Mac", destination: Self.reviveGuide)
-            Link("Mac DFU Studio on GitHub", destination: Self.project)
+            Link("Apple: DFU Ports", destination: Links.dfuGuide)
+            Link("Apple: Revive or Restore a Mac", destination: Links.reviveGuide)
+            Divider()
+            Link("Mac DFU Studio Website", destination: Links.website)
+            Link("Mac DFU Studio on GitHub", destination: Links.project)
+            Link("Report a Problem", destination: Links.issues)
+            Divider()
+            Link("Donate with PayPal", destination: Links.payPal)
+            Link("Buy Me a Coffee", destination: Links.buyMeACoffee)
         }
     }
 

@@ -71,6 +71,16 @@
         }
       }
     },
+    "A quick check of what it needs on this Mac." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un rapido controllo di ciò che le serve su questo Mac."
+          }
+        }
+      }
+    },
     "A restore is in progress." : {
       "localizations" : {
         "it" : {
@@ -81,12 +91,52 @@
         }
       }
     },
+    "About" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Info"
+          }
+        }
+      }
+    },
+    "About Mac DFU Studio" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informazioni su Mac DFU Studio"
+          }
+        }
+      }
+    },
+    "Acknowledgements" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riconoscimenti"
+          }
+        }
+      }
+    },
     "Activity" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Attività"
+          }
+        }
+      }
+    },
+    "Administrator" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Amministratore"
           }
         }
       }
@@ -141,6 +191,26 @@
         }
       }
     },
+    "Allow" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consenti"
+          }
+        }
+      }
+    },
+    "Allow them to be told when a revive or a restore ends." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consentile per sapere quando finisce una riattivazione o un ripristino."
+          }
+        }
+      }
+    },
     "Animated background" : {
       "localizations" : {
         "it" : {
@@ -157,6 +227,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aspetto"
+          }
+        }
+      }
+    },
+    "Apple Configurator" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Configurator"
           }
         }
       }
@@ -271,6 +351,16 @@
         }
       }
     },
+    "Back" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retro"
+          }
+        }
+      }
+    },
     "Back, leftmost port" : {
       "localizations" : {
         "it" : {
@@ -317,6 +407,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ID scheda"
+          }
+        }
+      }
+    },
+    "Buy Me a Coffee" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Offrimi un caffè"
           }
         }
       }
@@ -481,6 +581,16 @@
         }
       }
     },
+    "Clear the history?" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancellare la cronologia?"
+          }
+        }
+      }
+    },
     "Configurator" : {
       "localizations" : {
         "it" : {
@@ -561,12 +671,52 @@
         }
       }
     },
+    "Connected. Firmware is downloaded from Apple." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connesso. Il firmware si scarica da Apple."
+          }
+        }
+      }
+    },
+    "Continue" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continua"
+          }
+        }
+      }
+    },
+    "Copied" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiato"
+          }
+        }
+      }
+    },
     "Copy" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Copia"
+          }
+        }
+      }
+    },
+    "Copy Details" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia dettagli"
           }
         }
       }
@@ -602,6 +752,16 @@
       }
     },
     "DFU Port" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Porta DFU"
+          }
+        }
+      }
+    },
+    "DFU port" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
@@ -691,6 +851,36 @@
         }
       }
     },
+    "Developer ID, notarized by Apple" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Developer ID, notarizzata da Apple"
+          }
+        }
+      }
+    },
+    "Development build" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Build di sviluppo"
+          }
+        }
+      }
+    },
+    "Development build: the signature is not checked." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Build di sviluppo: la firma non viene verificata."
+          }
+        }
+      }
+    },
     "Device" : {
       "localizations" : {
         "it" : {
@@ -727,6 +917,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chiudi"
+          }
+        }
+      }
+    },
+    "Donate with PayPal" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dona con PayPal"
           }
         }
       }
@@ -861,6 +1061,16 @@
         }
       }
     },
+    "Entered DFU" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingresso in DFU"
+          }
+        }
+      }
+    },
     "Entering DFU…" : {
       "localizations" : {
         "it" : {
@@ -911,6 +1121,26 @@
         }
       }
     },
+    "Export…" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esporta…"
+          }
+        }
+      }
+    },
+    "Find firmware files with IPSW Downloader Plus" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trova i file firmware con IPSW Downloader Plus"
+          }
+        }
+      }
+    },
     "Find the DFU Port" : {
       "localizations" : {
         "it" : {
@@ -951,12 +1181,32 @@
         }
       }
     },
+    "Front" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fronte"
+          }
+        }
+      }
+    },
     "General" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Generali"
+          }
+        }
+      }
+    },
+    "Get" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ottieni"
           }
         }
       }
@@ -987,6 +1237,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nascondi inspector"
+          }
+        }
+      }
+    },
+    "History" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cronologia"
+          }
+        }
+      }
+    },
+    "History exported." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cronologia esportata."
           }
         }
       }
@@ -1071,6 +1341,26 @@
         }
       }
     },
+    "Installed" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installato"
+          }
+        }
+      }
+    },
+    "Installed. Revive and restore are available." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installato. Riattivazione e ripristino sono disponibili."
+          }
+        }
+      }
+    },
     "Intel Mac" : {
       "localizations" : {
         "it" : {
@@ -1107,6 +1397,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Intel senza T2"
+          }
+        }
+      }
+    },
+    "Internet" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Internet"
           }
         }
       }
@@ -1201,6 +1501,16 @@
         }
       }
     },
+    "Left" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sinistra"
+          }
+        }
+      }
+    },
     "Left side, nearest the front" : {
       "localizations" : {
         "it" : {
@@ -1227,6 +1537,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lato sinistro, accanto a MagSafe"
+          }
+        }
+      }
+    },
+    "Left, back" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sinistra, dietro"
+          }
+        }
+      }
+    },
+    "Left, front" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sinistra, davanti"
+          }
+        }
+      }
+    },
+    "Left, middle" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sinistra, al centro"
+          }
+        }
+      }
+    },
+    "License" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Licenza"
           }
         }
       }
@@ -1267,6 +1617,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mac DFU Studio"
+          }
+        }
+      }
+    },
+    "Mac DFU Studio Website" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sito di Mac DFU Studio"
+          }
+        }
+      }
+    },
+    "Mac DFU Studio is free, with no account and nothing sent anywhere. If it saved you a trip to a repair shop, a donation keeps it going." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac DFU Studio è gratuita, senza account e senza inviare nulla a nessuno. Se ti ha risparmiato un viaggio in assistenza, una donazione la fa andare avanti."
           }
         }
       }
@@ -1331,6 +1701,16 @@
         }
       }
     },
+    "Missing or damaged. Reinstall the app." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mancante o danneggiato. Reinstalla l’app."
+          }
+        }
+      }
+    },
     "Model" : {
       "localizations" : {
         "it" : {
@@ -1357,16 +1737,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Altro"
-          }
-        }
-      }
-    },
-    "More actions" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Altre azioni"
           }
         }
       }
@@ -1431,6 +1801,16 @@
         }
       }
     },
+    "No History" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessuna cronologia"
+          }
+        }
+      }
+    },
     "No Mac Connected" : {
       "localizations" : {
         "it" : {
@@ -1461,12 +1841,32 @@
         }
       }
     },
+    "No port that can send DFU requests was found." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non è stata trovata una porta in grado di inviare richieste DFU."
+          }
+        }
+      }
+    },
     "Not Now" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Non ora"
+          }
+        }
+      }
+    },
+    "Not available in this build." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non disponibili in questa build."
           }
         }
       }
@@ -1497,6 +1897,86 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Spazio su disco insufficiente. Libera %@ e riprova."
+          }
+        }
+      }
+    },
+    "Not installed" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non installato"
+          }
+        }
+      }
+    },
+    "Not installed. Only reviving and restoring need it." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non installato. Serve solo per riattivare e ripristinare."
+          }
+        }
+      }
+    },
+    "Not where other models of this family have it" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non è dove ce l’hanno gli altri modelli della famiglia"
+          }
+        }
+      }
+    },
+    "Notifications" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifiche"
+          }
+        }
+      }
+    },
+    "Notifications appear only while the app is in the background. The Mac never sleeps during a revive or a restore." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le notifiche compaiono solo quando l’app è in secondo piano. Il Mac non va mai in stop durante una riattivazione o un ripristino."
+          }
+        }
+      }
+    },
+    "Notifications are the only consent macOS asks for. The administrator password is requested each time a command is sent." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le notifiche sono l’unico consenso che macOS richiede. La password di amministratore viene chiesta ogni volta che si invia un comando."
+          }
+        }
+      }
+    },
+    "Notify when a revive or a restore ends" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avvisa quando finisce una riattivazione o un ripristino"
+          }
+        }
+      }
+    },
+    "Offline. Reviving and restoring download firmware from Apple." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non connesso. Riattivazione e ripristino scaricano il firmware da Apple."
           }
         }
       }
@@ -1551,6 +2031,16 @@
         }
       }
     },
+    "Open Settings" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apri Impostazioni"
+          }
+        }
+      }
+    },
     "Opens the Finder's Network window" : {
       "localizations" : {
         "it" : {
@@ -1577,6 +2067,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Superato"
+          }
+        }
+      }
+    },
+    "Permissions and requirements" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permessi e requisiti"
           }
         }
       }
@@ -1611,6 +2111,16 @@
         }
       }
     },
+    "Port on this Mac" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Porta su questo Mac"
+          }
+        }
+      }
+    },
     "Press and release the power button, then at once hold all four:" : {
       "localizations" : {
         "it" : {
@@ -1637,6 +2147,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Avanzamento"
+          }
+        }
+      }
+    },
+    "Put a Mac into DFU with one click. Revive it, restore it, or read its disk." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metti un Mac in DFU con un clic. Riattivalo, ripristinalo o leggine il disco."
           }
         }
       }
@@ -1731,12 +2251,32 @@
         }
       }
     },
+    "Report a Problem" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Segnala un problema"
+          }
+        }
+      }
+    },
     "Report copied." : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Report copiato."
+          }
+        }
+      }
+    },
+    "Report saved." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Report salvato."
           }
         }
       }
@@ -1791,6 +2331,16 @@
         }
       }
     },
+    "Restart, test the port, enter DFU by hand, and more" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riavvio, test della porta, DFU a mano e altro"
+          }
+        }
+      }
+    },
     "Restarting…" : {
       "localizations" : {
         "it" : {
@@ -1807,6 +2357,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Riavvia il Mac collegato"
+          }
+        }
+      }
+    },
+    "Restore" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristino"
           }
         }
       }
@@ -1901,6 +2461,16 @@
         }
       }
     },
+    "Revive anyway?" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riattivare comunque?"
+          }
+        }
+      }
+    },
     "Revive complete." : {
       "localizations" : {
         "it" : {
@@ -1931,6 +2501,16 @@
         }
       }
     },
+    "Revives, restores and trips into DFU are kept here, on this Mac only." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riattivazioni, ripristini e ingressi in DFU restano qui, solo su questo Mac."
+          }
+        }
+      }
+    },
     "Reviving and restoring use Apple Configurator" : {
       "localizations" : {
         "it" : {
@@ -1947,6 +2527,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Riattivazione…"
+          }
+        }
+      }
+    },
+    "Right" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Destra"
+          }
+        }
+      }
+    },
+    "Right, back" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Destra, dietro"
+          }
+        }
+      }
+    },
+    "Right, front" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Destra, davanti"
+          }
+        }
+      }
+    },
+    "Right, middle" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Destra, al centro"
           }
         }
       }
@@ -1977,6 +2597,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "SMART in errore"
+          }
+        }
+      }
+    },
+    "Save Diagnostic Report…" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salva report diagnostico…"
+          }
+        }
+      }
+    },
+    "Send commands through" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invia i comandi da"
+          }
+        }
+      }
+    },
+    "Sending DFU requests needs a Mac with Apple silicon." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per inviare richieste DFU serve un Mac con chip Apple."
           }
         }
       }
@@ -2091,6 +2741,26 @@
         }
       }
     },
+    "Signature" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Firma"
+          }
+        }
+      }
+    },
+    "Signed by the developer and verified." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Firmato dallo sviluppatore e verificato."
+          }
+        }
+      }
+    },
     "Simulated hardware. Nothing real is touched." : {
       "localizations" : {
         "it" : {
@@ -2117,6 +2787,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Suoni"
+          }
+        }
+      }
+    },
+    "Source Code on GitHub" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codice sorgente su GitHub"
           }
         }
       }
@@ -2201,6 +2881,16 @@
         }
       }
     },
+    "Support the project" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sostieni il progetto"
+          }
+        }
+      }
+    },
     "Switch to Debug USB" : {
       "localizations" : {
         "it" : {
@@ -2271,16 +2961,6 @@
         }
       }
     },
-    "The DFU port is not where the rest of this family has it" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La porta DFU non è dove si trova nel resto della famiglia"
-          }
-        }
-      }
-    },
     "The Mac didn't accept the DFU request." : {
       "localizations" : {
         "it" : {
@@ -2317,16 +2997,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Il Mac si sta riavviando."
-          }
-        }
-      }
-    },
-    "The Mac never sleeps during a revive or a restore." : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Durante riattivazione o ripristino il Mac non va mai in stop."
           }
         }
       }
@@ -2401,6 +3071,16 @@
         }
       }
     },
+    "The history couldn't be exported." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile esportare la cronologia."
+          }
+        }
+      }
+    },
     "The port controller needs a revive." : {
       "localizations" : {
         "it" : {
@@ -2421,12 +3101,12 @@
         }
       }
     },
-    "The port on this Mac that commands are sent through" : {
+    "The port on this Mac that commands are sent through. A bolt marks its DFU port." : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "La porta di questo Mac da cui partono i comandi"
+            "value" : "La porta di questo Mac da cui partono i comandi. Il fulmine indica la porta DFU."
           }
         }
       }
@@ -2457,6 +3137,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La versione non ha un download installabile."
+          }
+        }
+      }
+    },
+    "The report couldn't be saved." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile salvare il report."
           }
         }
       }
@@ -2521,6 +3211,86 @@
         }
       }
     },
+    "This Mac has a port that can send DFU requests." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo Mac ha una porta in grado di inviare richieste DFU."
+          }
+        }
+      }
+    },
+    "This Mac is offline. A revive downloads the firmware from Apple." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo Mac non è connesso. La riattivazione scarica il firmware da Apple."
+          }
+        }
+      }
+    },
+    "This Mac is offline. The firmware is downloaded from Apple." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo Mac non è connesso. Il firmware si scarica da Apple."
+          }
+        }
+      }
+    },
+    "This Mac is running on battery. Plug it in before you start." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo Mac va a batteria. Collegalo all’alimentazione prima di iniziare."
+          }
+        }
+      }
+    },
+    "This Mac is running on battery. Plug it in: losing power half-way can leave the other Mac unable to start." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo Mac va a batteria. Collegalo all’alimentazione: se si spegne a metà, l’altro Mac può non avviarsi più."
+          }
+        }
+      }
+    },
+    "This account is not an administrator. Commands need an administrator's name and password." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo account non è amministratore. I comandi richiedono nome e password di un amministratore."
+          }
+        }
+      }
+    },
+    "This can't be undone." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’operazione non può essere annullata."
+          }
+        }
+      }
+    },
+    "This copy" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa copia"
+          }
+        }
+      }
+    },
     "This copy can't update itself. Download the new version from GitHub." : {
       "localizations" : {
         "it" : {
@@ -2581,6 +3351,16 @@
         }
       }
     },
+    "Tools" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strumenti"
+          }
+        }
+      }
+    },
     "Tower: top, farthest from the power button. Rack: front, nearest it." : {
       "localizations" : {
         "it" : {
@@ -2621,12 +3401,32 @@
         }
       }
     },
+    "Turned off for this app in System Settings." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disattivate per questa app in Impostazioni di Sistema."
+          }
+        }
+      }
+    },
     "USB" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "USB"
+          }
+        }
+      }
+    },
+    "USB-C helper" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Helper USB-C"
           }
         }
       }
@@ -2711,6 +3511,22 @@
         }
       }
     },
+    "Version %@ (%@)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Version %1$@ (%2$@)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versione %1$@ (%2$@)"
+          }
+        }
+      }
+    },
     "Version %@ available" : {
       "localizations" : {
         "it" : {
@@ -2761,6 +3577,26 @@
         }
       }
     },
+    "Website" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sito web"
+          }
+        }
+      }
+    },
+    "Welcome to Mac DFU Studio" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ti diamo il benvenuto in Mac DFU Studio"
+          }
+        }
+      }
+    },
     "When done, eject it, then turn that Mac off with its power button." : {
       "localizations" : {
         "it" : {
@@ -2797,6 +3633,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "In corso"
+          }
+        }
+      }
+    },
+    "You are told when a revive or a restore ends." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ricevi un avviso quando finisce una riattivazione o un ripristino."
+          }
+        }
+      }
+    },
+    "You can see this list again in Settings › Advanced." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ritrovi questo elenco in Impostazioni › Avanzate."
           }
         }
       }
@@ -2841,6 +3697,26 @@
         }
       }
     },
+    "macOS" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS"
+          }
+        }
+      }
+    },
+    "macOS asks for your password when a command is sent to the port." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS chiede la tua password quando invii un comando alla porta."
+          }
+        }
+      }
+    },
     "power" : {
       "localizations" : {
         "it" : {
@@ -2857,6 +3733,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "maiuscole destro"
+          }
+        }
+      }
+    },
+    "© 2026 Alessio Cosi (iCosiSenpai). Independent software, not affiliated with Apple Inc." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "© 2026 Alessio Cosi (iCosiSenpai). Software indipendente, non affiliato ad Apple Inc."
           }
         }
       }

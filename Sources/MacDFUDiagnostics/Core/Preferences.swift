@@ -49,6 +49,8 @@ final class Preferences {
         static let sounds = "sounds"
         static let keepAwake = "keepAwake"
         static let baudRate = "serial.baudRate"
+        static let notifyWhenDone = "notifications.whenDone"
+        static let hasSeenWelcome = "welcome.seen"
     }
 
     @ObservationIgnored private let defaults: UserDefaults
@@ -100,6 +102,16 @@ final class Preferences {
         didSet { defaults.set(baudRate, forKey: Key.baudRate) }
     }
 
+    /// A notification when a revive or a restore ends while the app is not in front.
+    var notifyWhenDone: Bool {
+        didSet { defaults.set(notifyWhenDone, forKey: Key.notifyWhenDone) }
+    }
+
+    /// The welcome sheet has been shown once. Not a setting: Reset All Settings leaves it alone.
+    var hasSeenWelcome: Bool {
+        didSet { defaults.set(hasSeenWelcome, forKey: Key.hasSeenWelcome) }
+    }
+
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         defaults.register(defaults: [
@@ -107,6 +119,7 @@ final class Preferences {
             Key.motion: true,
             Key.sounds: true,
             Key.baudRate: 115_200,
+            Key.notifyWhenDone: true,
         ])
 
         // Versions before 2.0 stored these two under other names; carry the choice over.
@@ -120,6 +133,8 @@ final class Preferences {
         keepAwake = defaults.bool(forKey: Key.keepAwake)
         let savedBaud = defaults.integer(forKey: Key.baudRate)
         baudRate = DiagnosticsEngine.baudRates.contains(savedBaud) ? savedBaud : 115_200
+        notifyWhenDone = defaults.bool(forKey: Key.notifyWhenDone)
+        hasSeenWelcome = defaults.bool(forKey: Key.hasSeenWelcome)
 
         applyKeepAwake()
     }
@@ -147,6 +162,7 @@ final class Preferences {
         sounds = true
         keepAwake = false
         baudRate = 115_200
+        notifyWhenDone = true
     }
 
     private func applyKeepAwake() {

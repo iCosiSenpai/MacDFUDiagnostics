@@ -5,6 +5,7 @@ enum SettingsTab: String, Hashable {
     case effects
     case advanced
     case updates
+    case about
 }
 
 /// The Settings window (⌘,).
@@ -27,9 +28,12 @@ struct SettingsView: View {
             Tab("Updates", systemImage: "arrow.down.circle", value: SettingsTab.updates) {
                 UpdateSettings()
             }
+            Tab("About", systemImage: "info.circle", value: SettingsTab.about) {
+                AboutSettings()
+            }
         }
         .formStyle(.grouped)
-        .frame(width: 470)
+        .frame(width: 500)
         .fixedSize(horizontal: false, vertical: true)
     }
 }
@@ -60,9 +64,10 @@ private struct GeneralSettings: View {
 
             Section {
                 Toggle("Sounds", isOn: $preferences.sounds)
+                Toggle("Notify when a revive or a restore ends", isOn: $preferences.notifyWhenDone)
                 Toggle("Keep this Mac awake", isOn: $preferences.keepAwake)
             } footer: {
-                Text("The Mac never sleeps during a revive or a restore.")
+                Text("Notifications appear only while the app is in the background. The Mac never sleeps during a revive or a restore.")
             }
         }
     }
@@ -127,12 +132,21 @@ private struct EffectsSettings: View {
 
 private struct AdvancedSettings: View {
     @Environment(Preferences.self) private var preferences
+    @Environment(Readiness.self) private var readiness
     @State private var isConfirmingReset = false
 
     var body: some View {
         @Bindable var preferences = preferences
 
         Form {
+            Section {
+                ReadinessList()
+            } header: {
+                Text("Permissions and requirements")
+            } footer: {
+                Text("Notifications are the only consent macOS asks for. The administrator password is requested each time a command is sent.")
+            }
+
             Section {
                 Picker("Serial console speed", selection: $preferences.baudRate) {
                     ForEach(DiagnosticsEngine.baudRates, id: \.self) { rate in
@@ -150,6 +164,7 @@ private struct AdvancedSettings: View {
         .confirmationDialog("Reset all settings?", isPresented: $isConfirmingReset) {
             Button("Reset", role: .destructive) { preferences.resetToDefaults() }
         }
+        .task { await readiness.refresh() }
     }
 }
 

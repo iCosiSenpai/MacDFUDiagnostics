@@ -81,25 +81,22 @@ private struct MacCard: View {
             showsDetails = true
         } label: {
             VStack(alignment: .leading, spacing: Metrics.compact) {
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(verbatim: model.name)
-                            .font(.headline)
-                            .lineLimit(2)
-                            .multilineTextAlignment(.leading)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(verbatim: model.name)
+                        .font(.headline)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                    HStack(spacing: Metrics.tight) {
                         Text(verbatim: model.chip)
                             .font(.callout)
                             .foregroundStyle(.secondary)
-                    }
-                    Spacer(minLength: Metrics.tight)
-                    if isHost {
-                        StatusChip(text: "This Mac", tint: .accentColor)
-                    } else if model.port.isException {
-                        Image(systemName: "exclamationmark.circle.fill")
-                            .foregroundStyle(.orange)
-                            .help("The DFU port is not where the rest of this family has it")
+                        if isHost {
+                            // Beside the chip, not the name: a long name keeps the whole width.
+                            StatusChip(text: "This Mac", tint: .accentColor)
+                        }
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 PortDiagram(layout: model.port, tint: tint)
                     .frame(maxWidth: .infinity, minHeight: 44)
@@ -109,6 +106,11 @@ private struct MacCard: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
+
+                if model.port.isException {
+                    MovedPortNote()
+                        .font(.caption.weight(.medium))
+                }
             }
             .padding(Metrics.standard)
             .frame(maxWidth: .infinity, minHeight: 168, alignment: .topLeading)
@@ -125,6 +127,17 @@ private struct MacCard: View {
 
     private var tint: Color {
         model.port.isException ? .orange : .accentColor
+    }
+}
+
+/// Why some diagrams are orange: on these Macs Apple put the DFU port somewhere else than on the
+/// other models of the same family, which is exactly when people plug into the wrong one.
+private struct MovedPortNote: View {
+    var body: some View {
+        Label("Not where other models of this family have it", systemImage: "exclamationmark.circle.fill")
+            .foregroundStyle(.orange)
+            .multilineTextAlignment(.leading)
+            .fixedSize(horizontal: false, vertical: true)
     }
 }
 
@@ -156,6 +169,11 @@ private struct MacDetails: View {
             Text(model.port.caption)
                 .font(.callout)
                 .fixedSize(horizontal: false, vertical: true)
+
+            if model.port.isException {
+                MovedPortNote()
+                    .font(.callout.weight(.medium))
+            }
 
             Grid(alignment: .leading, horizontalSpacing: Metrics.standard, verticalSpacing: 6) {
                 detail("Identifier", model.modelIdentifier)
