@@ -24,6 +24,7 @@ struct MacDFUStudioApp: App {
                 .environment(history)
                 .language(preferences.language)
                 .onAppear {
+                    appDelegate.navigation = navigation
                     appDelegate.engine = engine
                     preferences.applyAppearance()
                     readiness.start()
@@ -67,7 +68,36 @@ extension MacDFUStudioApp {
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    weak var engine: DiagnosticsEngine?
+    weak var engine: DiagnosticsEngine? {
+        didSet { deliverPendingFirmware() }
+    }
+    weak var navigation: Navigation?
+    /// A restore image the app was asked to open before its window existed.
+    private var pendingFirmware: URL?
+
+    /// A restore image opened with this app — from the Finder, or handed over by IPSW Downloader Plus.
+    ///
+    /// It is taken as the file to restore from, exactly as if it had been dropped on the window, and
+    /// when a Mac that can take it is on the cable the restore sheet opens with it chosen. Nothing is
+    /// erased here: the sheet's confirmation is still the only thing that starts a restore.
+    func application(_ application: NSApplication, open urls: [URL]) {
+        guard let firmware = urls.first(where: DiagnosticsEngine.isFirmwareFile) else { return }
+        pendingFirmware = firmware
+        deliverPendingFirmware()
+    }
+
+    private func deliverPendingFirmware() {
+        guard let engine, let firmware = pendingFirmware else { return }
+        pendingFirmware = nil
+        NSApplication.shared.activate()
+        guard engine.demo == nil, !engine.isBusy else { return }
+        engine.firmwareURL = firmware
+        engine.report(.info, "Firmware ready: \(firmware.lastPathComponent)")
+        navigation?.section = .connect
+        if let device = engine.focusedDevice, device.state.acceptsFirmware, !device.isIntelT2 {
+            navigation?.showsRestoreSheet = true
+        }
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // A binary run straight from a build folder has no bundle to tell the system it is a regular app.

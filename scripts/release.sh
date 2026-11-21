@@ -58,7 +58,7 @@ MACDFU_RELEASE_APP="$CHECK/MacDFUDiagnostics.app" MACDFU_RELEASE_VERSION="$VERSI
 
 echo "==> Publishing $TAG"
 git tag -a "$TAG" -m "Mac DFU Studio $VERSION"
-git push --quiet origin main "$TAG"
+git push --quiet origin refs/heads/main "refs/tags/$TAG"
 # The zip goes first: it is the asset the in-app updater downloads.
 gh release create "$TAG" "$ZIP" "$DMG" --title "Mac DFU Studio $VERSION" --notes-file "$NOTES" --verify-tag
 echo "    $(gh release view "$TAG" --json url -q .url)"

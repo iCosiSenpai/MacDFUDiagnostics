@@ -363,3 +363,99 @@ struct HostPortTests {
         #expect(port("left-back").symbol == "cable.connector")
     }
 }
+
+// MARK: - IPSW Downloader Plus
+
+@Suite("Firmware library of IPSW Downloader Plus")
+struct FirmwareLibraryTests {
+    /// The file as the other app writes it, with fields this app does not read left in.
+    private func index(version: Int = 1, _ entries: String) -> Data {
+        Data("""
+        { "version": \(version), "generatedAt": "2026-11-21T10:00:00Z", "appVersion": "27.2.0", "firmware": [\(entries)] }
+        """.utf8)
+    }
+
+    private func entry(
+        _ path: String, version: String? = "26.1", build: String? = "25B78",
+        identifiers: [String] = ["Mac16,1", "Mac16,8"], signed: Bool? = true
+    ) -> String {
+        let quoted = identifiers.map { "\"\($0)\"" }.joined(separator: ",")
+        let signedField = signed.map { ", \"signed\": \($0)" } ?? ""
+        let versionField = version.map { ", \"version\": \"\($0)\"" } ?? ""
+        let buildField = build.map { ", \"build\": \"\($0)\"" } ?? ""
+        return """
+        { "path": "\(path)", "fileName": "x.ipsw", "sizeBytes": 17200000000, "identifiers": [\(quoted)]\(versionField)\(buildField)\(signedField) }
+        """
+    }
+
+    @Test("Only the images published for the Mac on the cable are offered")
+    func matchesByModel() {
+        let data = index([
+            entry("/Volumes/Firmware/UniversalMac_26.1_25B78_Restore.ipsw"),
+            entry("/Volumes/Firmware/Other.ipsw", identifiers: ["Mac14,2"])
+        ].joined(separator: ","))
+        let found = FirmwareLibrary.firmware(for: "Mac16,8", in: data) { _ in true }
+        #expect(found.map(\.url.lastPathComponent) == ["UniversalMac_26.1_25B78_Restore.ipsw"])
+        #expect(found.first?.title == "macOS 26.1 (25B78)")
+        #expect(FirmwareLibrary.firmware(for: "Mac15,3", in: data) { _ in true }.isEmpty)
+    }
+
+    @Test("Signed images come first, newest first; an unsigned one is last however new")
+    func ordersBySigningThenVersion() {
+        let data = index([
+            entry("/a/26.0.ipsw", version: "26.0", build: "25A354"),
+            entry("/a/27.0.ipsw", version: "27.0", build: "26A100", signed: false),
+            entry("/a/26.10.ipsw", version: "26.10", build: "25K10"),
+            entry("/a/26.2.ipsw", version: "26.2", build: "25C56", signed: nil)
+        ].joined(separator: ","))
+        let found = FirmwareLibrary.firmware(for: "Mac16,1", in: data) { _ in true }
+        #expect(found.map(\.version) == ["26.10", "26.2", "26.0", "27.0"])
+    }
+
+    @Test("A file that is gone or unreadable is not offered")
+    func skipsUnusableFiles() {
+        let data = index([entry("/a/here.ipsw"), entry("/a/gone.ipsw")].joined(separator: ","))
+        let found = FirmwareLibrary.firmware(for: "Mac16,1", in: data) { $0.lastPathComponent == "here.ipsw" }
+        #expect(found.map(\.url.lastPathComponent) == ["here.ipsw"])
+    }
+
+    @Test("Nothing but an absolute path to an .ipsw is taken from the file", arguments: [
+        "relative/firmware.ipsw", "~/firmware.ipsw", "/etc/passwd", "/a/firmware.ipsw.sh", ""
+    ])
+    func rejectsOtherPaths(path: String) {
+        let found = FirmwareLibrary.firmware(for: "Mac16,1", in: index(entry(path))) { _ in true }
+        #expect(found.isEmpty)
+    }
+
+    @Test("A dot-dot path is resolved before it is judged")
+    func standardizesPaths() {
+        let found = FirmwareLibrary.firmware(for: "Mac16,1", in: index(entry("/a/b/../firmware.ipsw"))) { _ in true }
+        #expect(found.map { $0.url.path(percentEncoded: false) } == ["/a/firmware.ipsw"])
+    }
+
+    @Test("A layout this version does not know, or a file that is not the index, yields nothing")
+    func ignoresUnknownInput() {
+        #expect(FirmwareLibrary.firmware(for: "Mac16,1", in: index(version: 2, entry("/a/x.ipsw"))) { _ in true }.isEmpty)
+        #expect(FirmwareLibrary.firmware(for: "Mac16,1", in: Data("not json".utf8)) { _ in true }.isEmpty)
+        #expect(FirmwareLibrary.firmware(for: "Mac16,1", in: Data()) { _ in true }.isEmpty)
+    }
+
+    @Test("A missing index is an empty library, not an error")
+    func missingFile() {
+        let nowhere = URL.temporaryDirectory.appending(path: "no-such-\(UUID().uuidString).json")
+        #expect(FirmwareLibrary.firmware(for: "Mac16,1", indexURL: nowhere).isEmpty)
+    }
+
+    @Test("The request sent to the other app names the model and nothing else")
+    func firmwareRequestURL() {
+        #expect(Links.ipswDownloaderFirmware(for: "Mac16,8")?.absoluteString
+            == "ipswdlplus://firmware?model=Mac16,8&from=macdfustudio")
+    }
+
+    @Test("Text that is not a model identifier never reaches a URL", arguments: [
+        "", "Mac16", "Mac16,8&key=x", "Mac16,8 --erase", "../Mac16,8", "16,8", "Mac16,8/", "iBridge2,14-MacBookPro16,1"
+    ])
+    func rejectsOtherModels(text: String) {
+        #expect(Links.ipswDownloaderFirmware(for: text) == nil)
+    }
+}
