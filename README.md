@@ -18,6 +18,11 @@
 </p>
 
 <p align="center">
+  <a href="https://paypal.me/AlessioCosi"><img src="https://img.shields.io/badge/PayPal-Donate-blue?logo=paypal&logoColor=white" alt="Donate with PayPal" /></a>
+  <a href="https://buymeacoffee.com/icosisenpai"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Support-yellow?logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee" /></a>
+</p>
+
+<p align="center">
   <a href="#download">Download</a> ·
   <a href="#what-it-does">What it does</a> ·
   <a href="#a-look-around">A look around</a> ·
@@ -35,7 +40,7 @@
 
 ## Download
 
-**[Get the latest release →](https://github.com/iCosiSenpai/MacDFUDiagnostics/releases/latest)**
+**[Get the latest release →](https://github.com/iCosiSenpai/MacDFUDiagnostics/releases/latest)** · [icosisenpai.app/macdfustudio](https://icosisenpai.app/macdfustudio/)
 
 1. Open the `.dmg` and drag **Mac DFU Studio** to Applications.
 2. To revive or restore, also install **[Apple Configurator](https://apps.apple.com/app/apple-configurator/id1037126344)** (free). Entering DFU and everything else works without it.
@@ -163,6 +168,10 @@ Requires Xcode 26 or later, with the Metal toolchain installed.
 The `AppleHPMLib` interface was worked out by the [Asahi Linux](https://github.com/AsahiLinux/macvdmtool) project and by [osy](https://github.com/osy/ThunderboltPatcher); the Intel T2 message comes from the research in [restorekit](https://github.com/fcjr/restorekit). Details are in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 
 The procedures follow Apple's documentation: [How to revive or restore Mac firmware](https://support.apple.com/108900), [Identify the DFU port](https://support.apple.com/120694), and the Mac User Guide on Target Disk Mode and Share Disk.
+
+## Support the project
+
+Mac DFU Studio is free, with no account and no telemetry. If it saved you a trip to a repair shop, a donation keeps it going: [PayPal](https://paypal.me/AlessioCosi) or [Buy Me a Coffee](https://buymeacoffee.com/icosisenpai).
 
 ## License
 

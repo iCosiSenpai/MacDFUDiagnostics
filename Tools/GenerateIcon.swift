@@ -1,238 +1,82 @@
+// Builds the app icon from its artwork.
+//
+//   swift Tools/GenerateIcon.swift            writes Resources/AppIcon.iconset and docs/images/icon.png
+//   swift Tools/GenerateIcon.swift --flat X   also writes X: the artwork as a squircle that fills its
+//                                             1024 px canvas, the shape the website's icons use
+//
+// Resources/IconArtwork.png is a full-bleed square: a white glyph (a bolt over a USB-C port, and the
+// three dots this family of apps shares) on a violet-to-blue gradient. It was generated with Google
+// Gemini from a written brief and is used as it came; this script only gives it the shape of a Mac
+// icon: Apple's 824 pt rounded square on a 1024 pt canvas, with the template's soft shadow.
 import AppKit
-import CoreGraphics
-import Foundation
+import SwiftUI
 
-func drawAppIcon(size: CGFloat) -> NSImage {
-    let image = NSImage(size: NSSize(width: size, height: size))
-    image.lockFocus()
-    guard let ctx = NSGraphicsContext.current?.cgContext else {
-        image.unlockFocus()
-        return image
-    }
-
-    let rect = CGRect(x: 0, y: 0, width: size, height: size)
-    let inset = size * 0.08
-    let cardRect = rect.insetBy(dx: inset, dy: inset)
-    let cornerRadius = cardRect.width * 0.225
-
-    // 1. Drop shadow & Squircle background
-    ctx.saveGState()
-    let path = CGPath(roundedRect: cardRect, cornerWidth: cornerRadius, cornerHeight: cornerRadius, transform: nil)
-    ctx.addPath(path)
-    ctx.clip()
-
-    let colorSpace = CGColorSpaceCreateDeviceRGB()
-    let bgColors = [
-        CGColor(red: 0.07, green: 0.09, blue: 0.18, alpha: 1.0),
-        CGColor(red: 0.11, green: 0.16, blue: 0.32, alpha: 1.0),
-        CGColor(red: 0.04, green: 0.06, blue: 0.12, alpha: 1.0)
-    ] as CFArray
-    let bgLocations: [CGFloat] = [0.0, 0.55, 1.0]
-    if let gradient = CGGradient(colorsSpace: colorSpace, colors: bgColors, locations: bgLocations) {
-        ctx.drawLinearGradient(
-            gradient,
-            start: CGPoint(x: cardRect.minX, y: cardRect.maxY),
-            end: CGPoint(x: cardRect.maxX, y: cardRect.minY),
-            options: []
-        )
-    }
-
-    // Subtle radial cyan/blue glow in center
-    let glowColors = [
-        CGColor(red: 0.0, green: 0.72, blue: 1.0, alpha: 0.28),
-        CGColor(red: 0.0, green: 0.45, blue: 0.95, alpha: 0.0)
-    ] as CFArray
-    if let radial = CGGradient(colorsSpace: colorSpace, colors: glowColors, locations: [0.0, 1.0]) {
-        let center = CGPoint(x: size * 0.5, y: size * 0.54)
-        ctx.drawRadialGradient(radial, startCenter: center, startRadius: 0, endCenter: center, endRadius: size * 0.42, options: [])
-    }
-
-    // 2. Circuit trace lines radiating from center silicon chip
-    ctx.setStrokeColor(CGColor(red: 0.20, green: 0.78, blue: 1.0, alpha: 0.32))
-    ctx.setLineWidth(size * 0.012)
-    ctx.setLineCap(.round)
-
-    let chipSize = size * 0.42
-    let chipRect = CGRect(
-        x: (size - chipSize) / 2.0,
-        y: (size - chipSize) / 2.0 + size * 0.04,
-        width: chipSize,
-        height: chipSize
-    )
-
-    let pinCount = 5
-    for i in 0..<pinCount {
-        let fraction = CGFloat(i + 1) / CGFloat(pinCount + 1)
-        // Left pins
-        let yPos = chipRect.minY + chipRect.height * fraction
-        ctx.move(to: CGPoint(x: chipRect.minX - size * 0.08, y: yPos))
-        ctx.addLine(to: CGPoint(x: chipRect.minX, y: yPos))
-        // Right pins
-        ctx.move(to: CGPoint(x: chipRect.maxX, y: yPos))
-        ctx.addLine(to: CGPoint(x: chipRect.maxX + size * 0.08, y: yPos))
-        // Top pins
-        let xPos = chipRect.minX + chipRect.width * fraction
-        ctx.move(to: CGPoint(x: xPos, y: chipRect.maxY))
-        ctx.addLine(to: CGPoint(x: xPos, y: chipRect.maxY + size * 0.07))
-        // Bottom pins
-        ctx.move(to: CGPoint(x: xPos, y: chipRect.minY - size * 0.07))
-        ctx.addLine(to: CGPoint(x: xPos, y: chipRect.minY))
-    }
-    ctx.strokePath()
-
-    // 3. Silicon Chip Die Body
-    let chipCorner = chipSize * 0.16
-    let chipPath = CGPath(roundedRect: chipRect, cornerWidth: chipCorner, cornerHeight: chipCorner, transform: nil)
-    ctx.saveGState()
-    ctx.addPath(chipPath)
-    ctx.clip()
-
-    let chipColors = [
-        CGColor(red: 0.16, green: 0.22, blue: 0.36, alpha: 1.0),
-        CGColor(red: 0.08, green: 0.11, blue: 0.20, alpha: 1.0)
-    ] as CFArray
-    if let chipGrad = CGGradient(colorsSpace: colorSpace, colors: chipColors, locations: [0.0, 1.0]) {
-        ctx.drawLinearGradient(
-            chipGrad,
-            start: CGPoint(x: chipRect.minX, y: chipRect.maxY),
-            end: CGPoint(x: chipRect.maxX, y: chipRect.minY),
-            options: []
-        )
-    }
-    ctx.restoreGState()
-
-    // Chip Metallic Border
-    ctx.addPath(chipPath)
-    ctx.setStrokeColor(CGColor(red: 0.35, green: 0.85, blue: 1.0, alpha: 0.85))
-    ctx.setLineWidth(size * 0.016)
-    ctx.strokePath()
-
-    // 4. Lightning / Pulse Bolt + "DFU" inside the Silicon Die
-    let paragraph = NSMutableParagraphStyle()
-    paragraph.alignment = .center
-
-    let dfuFont = NSFont.systemFont(ofSize: size * 0.125, weight: .black)
-    let dfuAttrs: [NSAttributedString.Key: Any] = [
-        .font: dfuFont,
-        .foregroundColor: NSColor(calibratedRed: 0.35, green: 0.92, blue: 1.0, alpha: 1.0),
-        .paragraphStyle: paragraph
-    ]
-    let dfuText = "DFU" as NSString
-    let dfuSize = dfuText.size(withAttributes: dfuAttrs)
-    let dfuRect = CGRect(
-        x: chipRect.midX - dfuSize.width / 2.0,
-        y: chipRect.midY - dfuSize.height / 2.0 + size * 0.03,
-        width: dfuSize.width,
-        height: dfuSize.height
-    )
-    dfuText.draw(in: dfuRect, withAttributes: dfuAttrs)
-
-    let subFont = NSFont.monospacedSystemFont(ofSize: size * 0.048, weight: .bold)
-    let subAttrs: [NSAttributedString.Key: Any] = [
-        .font: subFont,
-        .foregroundColor: NSColor(calibratedRed: 0.72, green: 0.86, blue: 1.0, alpha: 0.9),
-        .paragraphStyle: paragraph
-    ]
-    let subText = "M1–M6 • T2" as NSString
-    let subSize = subText.size(withAttributes: subAttrs)
-    let subRect = CGRect(
-        x: chipRect.midX - subSize.width / 2.0,
-        y: chipRect.minY + size * 0.045,
-        width: subSize.width,
-        height: subSize.height
-    )
-    subText.draw(in: subRect, withAttributes: subAttrs)
-
-    // 5. Bottom USB-C Connector Pill Badge
-    let pillWidth = size * 0.56
-    let pillHeight = size * 0.095
-    let pillRect = CGRect(
-        x: (size - pillWidth) / 2.0,
-        y: cardRect.minY + size * 0.065,
-        width: pillWidth,
-        height: pillHeight
-    )
-    let pillPath = CGPath(roundedRect: pillRect, cornerWidth: pillHeight / 2.0, cornerHeight: pillHeight / 2.0, transform: nil)
-    ctx.addPath(pillPath)
-    ctx.setFillColor(CGColor(red: 0.0, green: 0.82, blue: 0.62, alpha: 0.95))
-    ctx.fillPath()
-
-    let pillFont = NSFont.systemFont(ofSize: size * 0.042, weight: .heavy)
-    let pillAttrs: [NSAttributedString.Key: Any] = [
-        .font: pillFont,
-        .foregroundColor: NSColor(calibratedRed: 0.03, green: 0.12, blue: 0.10, alpha: 1.0),
-        .paragraphStyle: paragraph
-    ]
-    let pillText = "USB-C VDM • DIAG" as NSString
-    let pillTextSize = pillText.size(withAttributes: pillAttrs)
-    let pillTextRect = CGRect(
-        x: pillRect.midX - pillTextSize.width / 2.0,
-        y: pillRect.midY - pillTextSize.height / 2.0,
-        width: pillTextSize.width,
-        height: pillTextSize.height
-    )
-    pillText.draw(in: pillTextRect, withAttributes: pillAttrs)
-
-    // Outer Squircle Border Highlight
-    ctx.addPath(path)
-    ctx.setStrokeColor(CGColor(red: 0.45, green: 0.75, blue: 1.0, alpha: 0.35))
-    ctx.setLineWidth(size * 0.015)
-    ctx.strokePath()
-
-    ctx.restoreGState()
-    image.unlockFocus()
-    return image
+let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+let artworkURL = root.appendingPathComponent("Resources/IconArtwork.png")
+guard let artwork = NSImage(contentsOf: artworkURL)?.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
+    FileHandle.standardError.write(Data("Missing Resources/IconArtwork.png\n".utf8))
+    exit(1)
 }
 
-func savePNG(_ image: NSImage, to url: URL, pixelSize: Int) throws {
-    guard let rep = NSBitmapImageRep(
-        bitmapDataPlanes: nil,
-        pixelsWide: pixelSize,
-        pixelsHigh: pixelSize,
-        bitsPerSample: 8,
-        samplesPerPixel: 4,
-        hasAlpha: true,
-        isPlanar: false,
-        colorSpaceName: .deviceRGB,
-        bytesPerRow: 0,
-        bitsPerPixel: 0
-    ) else { return }
+/// The continuous-corner rounded square macOS draws its own icons with.
+func squircle(in rect: CGRect) -> CGPath {
+    RoundedRectangle(cornerRadius: rect.width * 0.2237, style: .continuous).path(in: rect).cgPath
+}
 
-    rep.size = NSSize(width: pixelSize, height: pixelSize)
-    NSGraphicsContext.saveGraphicsState()
-    NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
-    image.draw(in: NSRect(x: 0, y: 0, width: pixelSize, height: pixelSize))
-    NSGraphicsContext.restoreGraphicsState()
+func render(side: Int, margin: CGFloat, shadow: Bool) -> CGImage {
+    let size = CGFloat(side)
+    let context = CGContext(
+        data: nil, width: side, height: side, bitsPerComponent: 8, bytesPerRow: 0,
+        space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+    )!
+    context.interpolationQuality = .high
+    let tile = CGRect(x: 0, y: 0, width: size, height: size).insetBy(dx: size * margin, dy: size * margin)
+    let shape = squircle(in: tile)
 
-    if let pngData = rep.representation(using: .png, properties: [:]) {
-        try pngData.write(to: url)
+    if shadow {
+        context.saveGState()
+        context.setShadow(offset: CGSize(width: 0, height: -size * 0.0098), blur: size * 0.0195,
+                          color: CGColor(gray: 0, alpha: 0.3))
+        context.addPath(shape)
+        context.setFillColor(CGColor(gray: 0, alpha: 1))
+        context.fillPath()
+        context.restoreGState()
     }
+
+    context.saveGState()
+    context.addPath(shape)
+    context.clip()
+    context.draw(artwork, in: tile)
+    // A hairline of light along the top edge, as on every system icon: it keeps the tile from
+    // looking cut out of paper on a dark Dock.
+    context.addPath(shape)
+    context.setLineWidth(max(1, size * 0.004))
+    context.replacePathWithStrokedPath()
+    context.clip()
+    let colors = [CGColor(gray: 1, alpha: 0.28), CGColor(gray: 1, alpha: 0)] as CFArray
+    let light = CGGradient(colorsSpace: CGColorSpace(name: CGColorSpace.sRGB)!, colors: colors, locations: [0, 1])!
+    context.drawLinearGradient(light, start: CGPoint(x: 0, y: tile.maxY), end: CGPoint(x: 0, y: tile.midY), options: [])
+    context.restoreGState()
+    return context.makeImage()!
 }
 
-let fm = FileManager.default
-let root = URL(fileURLWithPath: fm.currentDirectoryPath)
-let iconsetDir = root.appendingPathComponent("Resources/AppIcon.iconset")
-let docsImgDir = root.appendingPathComponent("docs/images")
-try? fm.removeItem(at: iconsetDir)
-try fm.createDirectory(at: iconsetDir, withIntermediateDirectories: true)
-try fm.createDirectory(at: docsImgDir, withIntermediateDirectories: true)
-
-let masterImage = drawAppIcon(size: 1024)
-let specs: [(String, Int)] = [
-    ("icon_16x16.png", 16),
-    ("icon_16x16@2x.png", 32),
-    ("icon_32x32.png", 32),
-    ("icon_32x32@2x.png", 64),
-    ("icon_128x128.png", 128),
-    ("icon_128x128@2x.png", 256),
-    ("icon_256x256.png", 256),
-    ("icon_256x256@2x.png", 512),
-    ("icon_512x512.png", 512),
-    ("icon_512x512@2x.png", 1024)
-]
-
-for (name, px) in specs {
-    try savePNG(masterImage, to: iconsetDir.appendingPathComponent(name), pixelSize: px)
+func write(_ image: CGImage, to url: URL) throws {
+    try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+    let data = NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:])!
+    try data.write(to: url)
 }
-try savePNG(masterImage, to: docsImgDir.appendingPathComponent("icon.png"), pixelSize: 512)
-print("Generated iconset and PNG assets successfully.")
+
+// Apple's grid: the tile is 824 of 1024 points, so the margin is 100/1024 on each side.
+let appMargin: CGFloat = 100.0 / 1024.0
+let iconset = root.appendingPathComponent("Resources/AppIcon.iconset")
+try? FileManager.default.removeItem(at: iconset)
+for (points, scale) in [(16, 1), (16, 2), (32, 1), (32, 2), (128, 1), (128, 2), (256, 1), (256, 2), (512, 1), (512, 2)] {
+    let name = scale == 1 ? "icon_\(points)x\(points).png" : "icon_\(points)x\(points)@2x.png"
+    try write(render(side: points * scale, margin: appMargin, shadow: true), to: iconset.appendingPathComponent(name))
+}
+try write(render(side: 512, margin: appMargin, shadow: true), to: root.appendingPathComponent("docs/images/icon.png"))
+
+if let flag = CommandLine.arguments.firstIndex(of: "--flat"), CommandLine.arguments.count > flag + 1 {
+    try write(render(side: 1024, margin: 0, shadow: false), to: URL(fileURLWithPath: CommandLine.arguments[flag + 1]))
+}
+print("Icon written.")
