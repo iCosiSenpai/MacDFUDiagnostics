@@ -13,6 +13,8 @@ struct RestoreSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var source: Source = .latest
     @State private var isChoosingFile = false
+    /// The restore images IPSW Downloader Plus keeps for this Mac. Read once, when the sheet opens.
+    @State private var libraryFirmware: [LibraryFirmware] = []
 
     private enum Source {
         case latest
@@ -59,6 +61,10 @@ struct RestoreSheet: View {
                 }
             }
 
+            if !device.isIntelT2, !libraryFirmware.isEmpty {
+                libraryPicks
+            }
+
             if let free = freeSpace, free < Self.suggestedFreeSpace, source == .latest || device.isIntelT2 {
                 note("Apple suggests 60 GB free on this Mac. There is \(ByteCountFormatter.string(fromByteCount: free, countStyle: .file)).", symbol: "internaldrive")
             }
@@ -71,10 +77,16 @@ struct RestoreSheet: View {
             }
             if !device.isIntelT2, source == .file {
                 Button {
-                    Self.openFirmwareFinder()
+                    openFirmwareFinder()
                 } label: {
-                    Label("Find firmware files with IPSW Downloader Plus", systemImage: "arrow.up.right.square")
-                        .font(.callout)
+                    Group {
+                        if firmwareRequest == nil {
+                            Label("Find firmware files with IPSW Downloader Plus", systemImage: "arrow.up.right.square")
+                        } else {
+                            Label("Find firmware for this Mac with IPSW Downloader Plus", systemImage: "arrow.up.right.square")
+                        }
+                    }
+                    .font(.callout)
                 }
                 .buttonStyle(.link)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -98,6 +110,10 @@ struct RestoreSheet: View {
         .frame(width: 420)
         .onAppear {
             source = engine.firmwareURL == nil ? .latest : .file
+            // A demo has no real Mac on the cable and no business reading another app's files.
+            if engine.demo == nil, let identifier = device.model?.restoreIdentifier, !device.isIntelT2 {
+                libraryFirmware = FirmwareLibrary.firmware(for: identifier)
+            }
         }
         .fileImporter(isPresented: $isChoosingFile, allowedContentTypes: [Self.firmwareType]) { result in
             if case .success(let url) = result, DiagnosticsEngine.isFirmwareFile(url) {
@@ -107,13 +123,73 @@ struct RestoreSheet: View {
         }
     }
 
-    /// Opens the sibling app that downloads firmware files, or its page when it is not installed.
-    private static func openFirmwareFinder() {
-        if let app = NSWorkspace.shared.urlForApplication(withBundleIdentifier: Links.ipswDownloaderBundleID) {
-            NSWorkspace.shared.openApplication(at: app, configuration: NSWorkspace.OpenConfiguration())
-        } else {
+    /// The link that asks IPSW Downloader Plus for this Mac's firmware, when the Mac is known.
+    private var firmwareRequest: URL? {
+        device.model?.restoreIdentifier.flatMap(Links.ipswDownloaderFirmware(for:))
+    }
+
+    /// Opens the sibling app that downloads firmware files — on this Mac's model when it is known —
+    /// or its page when it is not installed.
+    private func openFirmwareFinder() {
+        guard let app = NSWorkspace.shared.urlForApplication(withBundleIdentifier: Links.ipswDownloaderBundleID) else {
             NSWorkspace.shared.open(Links.ipswDownloader)
+            return
         }
+        let configuration = NSWorkspace.OpenConfiguration()
+        if let firmwareRequest {
+            // Addressed to that app by name: a URL scheme can be claimed by anything installed.
+            NSWorkspace.shared.open([firmwareRequest], withApplicationAt: app, configuration: configuration)
+        } else {
+            NSWorkspace.shared.openApplication(at: app, configuration: configuration)
+        }
+    }
+
+    /// The images already on this Mac that fit the one on the cable: one click instead of a file panel.
+    private var libraryPicks: some View {
+        VStack(alignment: .leading, spacing: Metrics.tight) {
+            Text("In your IPSW Downloader Plus library")
+                .font(.caption.weight(.medium))
+                .foregroundStyle(.secondary)
+            ForEach(libraryFirmware.prefix(3)) { firmware in
+                let isChosen = source == .file && engine.firmwareURL == firmware.url
+                Button {
+                    engine.firmwareURL = firmware.url
+                    source = .file
+                } label: {
+                    HStack(spacing: Metrics.tight) {
+                        Image(systemName: isChosen ? "checkmark.circle.fill" : "shippingbox")
+                            .foregroundStyle(isChosen ? AnyShapeStyle(.tint) : AnyShapeStyle(.secondary))
+                            .frame(width: 20)
+                        // The warning under the name, not beside it: at this sheet's width the two
+                        // side by side squeezed the name down to its middle.
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(verbatim: firmware.title)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                            if firmware.signed == false {
+                                Text("No longer signed by Apple")
+                                    .font(.caption)
+                                    .foregroundStyle(.orange)
+                            }
+                        }
+                        Spacer(minLength: Metrics.tight)
+                        Text(verbatim: firmware.formattedSize)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                    }
+                    .font(.callout)
+                    .padding(.horizontal, Metrics.compact)
+                    .padding(.vertical, Metrics.tight)
+                    .contentShape(.rect(cornerRadius: Metrics.insetRadius))
+                }
+                .buttonStyle(.plain)
+                .focusEffectDisabled()
+                .background(isChosen ? AnyShapeStyle(.tint.opacity(0.12)) : AnyShapeStyle(.quaternary.opacity(0.5)), in: .rect(cornerRadius: Metrics.insetRadius))
+                .accessibilityAddTraits(isChosen ? .isSelected : [])
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var freeSpace: Int64? {

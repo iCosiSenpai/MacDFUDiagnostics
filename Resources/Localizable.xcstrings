@@ -1141,6 +1141,16 @@
         }
       }
     },
+    "Find firmware for this Mac with IPSW Downloader Plus" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trova il firmware per questo Mac con IPSW Downloader Plus"
+          }
+        }
+      }
+    },
     "Find the DFU Port" : {
       "localizations" : {
         "it" : {
@@ -1317,6 +1327,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "In modalità di recupero."
+          }
+        }
+      }
+    },
+    "In your IPSW Downloader Plus library" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nella tua libreria di IPSW Downloader Plus"
           }
         }
       }
@@ -1837,6 +1857,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nessun bridge Thunderbolt"
+          }
+        }
+      }
+    },
+    "No longer signed by Apple" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non più firmata da Apple"
           }
         }
       }

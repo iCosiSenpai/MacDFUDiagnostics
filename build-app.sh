@@ -63,6 +63,21 @@ cat > "$APP/Contents/Info.plist" <<PLIST
         <string>en</string>
         <string>it</string>
     </array>
+    <key>CFBundleDocumentTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeName</key>
+            <string>Apple Restore Image</string>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>LSHandlerRank</key>
+            <string>Alternate</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>com.apple.itunes.ipsw</string>
+            </array>
+        </dict>
+    </array>
     <key>CFBundleExecutable</key>
     <string>MacDFUDiagnostics</string>
     <key>CFBundleIdentifier</key>
